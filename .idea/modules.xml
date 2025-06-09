@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/BackendService/BackendService.iml" filepath="$PROJECT_DIR$/BackendService/BackendService.iml" />
       <module fileurl="file://$PROJECT_DIR$/admin-console/admin-console.iml" filepath="$PROJECT_DIR$/admin-console/admin-console.iml" />
       <module fileurl="file://$PROJECT_DIR$/demo.iml" filepath="$PROJECT_DIR$/demo.iml" />
     </modules>
