@@ -10,14 +10,14 @@ import java.util.Base64;
 @Entity
 @Table(name = "user")
 public class User {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Id
     @Column(name = "id")
-    private int id;
+    private String id;
     @Column(name = "username", unique = true, nullable = false)
     private String username;
     @Column(name = "password_hash", nullable = false)
-    private String passwordHash;
+    private String password;
     @Column(name = "salt", nullable = false)
     private String salt;
 
@@ -26,9 +26,7 @@ public class User {
         if (this.salt == null) {
             this.salt = generateSalt();
         }
-        if (this.passwordHash == null && this.username != null) {
-            this.passwordHash = calculateHash(this.username, this.salt);
-        }
+        this.password = calculateHash(this.password, this.salt);
     }
 
     private String generateSalt() {
@@ -43,4 +41,5 @@ public class User {
         byte[] hashBytes = DigestUtils.md5Digest(combined.getBytes());
         return DigestUtils.md5DigestAsHex(hashBytes);
     }
+
 }
