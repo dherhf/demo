@@ -1,0 +1,12 @@
+spring:
+    application:
+        name: BackendService
+    datasource:
+        url: jdbc:mysql://119.91.52.251:3306/demo
+        username: test
+        password: www.2005
+        driver-class-name: com.mysql.cj.jdbc.Driver
+    jpa:
+        show-sql: true
+        hibernate:
+            ddl-auto: update

@@ -9,13 +9,10 @@ import lombok.Data;
 public class OrderItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    @Column(name = "id")
     private int id;
-    @Column(name = "dish_id")
     private int dishId;
-    @Column(name = "quantity")
     private int quantity;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order")
+    @JoinColumn(name = "order_id")
     private Order order;
 }

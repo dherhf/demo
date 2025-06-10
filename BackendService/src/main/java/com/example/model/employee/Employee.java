@@ -5,16 +5,15 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "employee")
+@Table
 public class Employee {
     @GeneratedValue(strategy = GenerationType.IDENTITY)   //生成策略，这里配置为自增
-    @Column(name = "id")
     @Id
     private int id;
-    @Column(name = "name")
+    // 员工名字
     private String name;
-    @Column(name = "age")
+    // 员工年龄
     private int age;
-    @Column(name = "phone")
+    // 员工手机号
     private String phone;
 }
