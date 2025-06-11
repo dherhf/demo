@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface DishCategoryRepository extends JpaRepository<DishCategory, Long> {
+    Iterable<? extends DishCategory> id(int id);
 }
