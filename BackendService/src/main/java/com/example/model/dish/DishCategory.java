@@ -1,34 +1,27 @@
 package com.example.model.dish;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
+@EqualsAndHashCode(exclude = {"dishes"})
+@ToString(exclude = {"dishes"})
 @Entity
-@Table
+@Table(name = "dish_category")
 public class DishCategory {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    // 分类标签
-    private String tags;
-    // 描述
+
     private String description;
-    // 菜品
-    @OneToMany(mappedBy = "dishCategory", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Dish> dishes = new HashSet<>();
 
-    public void addDish(Dish dish) {
-        dishes.add(dish);
-        dish.setDishCategory(this);
-    }
+    private String tags;
 
-    public void removeDish(Dish dish) {
-        dishes.remove(dish);
-        dish.setDishCategory(null);
-    }
-
+    @OneToMany(mappedBy = "dishCategory", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<Dish> dishes = new ArrayList<>();
 }

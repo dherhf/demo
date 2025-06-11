@@ -1,4 +1,4 @@
-package com.example.dto;
+package com.example.dto.dish;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;

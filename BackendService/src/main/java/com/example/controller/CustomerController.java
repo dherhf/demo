@@ -1,7 +1,7 @@
 package com.example.controller;
 
-import com.example.dto.ApiResponse;
-import com.example.dto.CustomerRequest;
+import com.example.dto.customer.CustomerRequest;
+import com.example.dto.customer.CustomerResponse;
 import com.example.model.customer.Customer;
 import com.example.service.CustomerService;
 import jakarta.validation.Valid;
@@ -11,94 +11,91 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/customer")
+@RequestMapping("/api/customers")
 @CrossOrigin(origins = "*")
 public class CustomerController {
 
     private final CustomerService customerService;
+
     public CustomerController(CustomerService customerService) {
         this.customerService = customerService;
     }
 
-    @GetMapping("get-all")
-    public ResponseEntity<ApiResponse<List<Customer>>> getAll() {
-        try {
-            List<Customer> allCustomers = customerService.getAllCustomers();
-            return ResponseEntity.ok(new ApiResponse<>(true, "获取所有顾客成功", allCustomers));
-        } catch (Exception e) {
-            return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse<>(false, "服务器错误", null));
-        }
+    // 获取所有顾客
+    @GetMapping
+    public ResponseEntity<List<CustomerResponse>> getAllCustomers() {
+        List<Customer> allCustomers = customerService.getAllCustomers();
+        List<CustomerResponse> responses = allCustomers.stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(responses);
     }
 
-    @PostMapping("add")
-    public ResponseEntity<ApiResponse<Customer>> addCustomer(@Valid @RequestBody CustomerRequest customerRequest) {
-        try {
-            Customer newCustomer = new Customer();
-            newCustomer.setName(customerRequest.getName());
-            newCustomer.setAddress(customerRequest.getAddress());
-            newCustomer.setPhone(customerRequest.getPhone());
-            newCustomer.setCardID(customerRequest.getCardID());
-            System.out.println(newCustomer);
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(new ApiResponse<>(true, "添加顾客成功", customerService.addCustomer(newCustomer))
-            );
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse<>(false, "服务器错误", null));
+    // 创建新顾客
+    @PostMapping
+    public ResponseEntity<CustomerResponse> createCustomer(@Valid @RequestBody CustomerRequest customerRequest) {
+        Customer newCustomer = new Customer();
+        newCustomer.setName(customerRequest.getName());
+        newCustomer.setAddress(customerRequest.getAddress());
+        newCustomer.setPhone(customerRequest.getPhone());
+        newCustomer.setCardID(customerRequest.getCardID());
+
+        Customer savedCustomer = customerService.addCustomer(newCustomer);
+        CustomerResponse response = convertToResponse(savedCustomer);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    // 根据ID获取顾客
+    @GetMapping("/{id}")
+    public ResponseEntity<CustomerResponse> getCustomerById(@PathVariable int id) {
+        Optional<Customer> customer = customerService.getCustomerById(id);
+        return customer.map(c -> ResponseEntity.ok(convertToResponse(c)))
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    // 更新顾客信息
+    @PutMapping("/{id}")
+    public ResponseEntity<CustomerResponse> updateCustomer(
+            @PathVariable int id,
+            @Valid @RequestBody CustomerRequest updateRequest) {
+        Optional<Customer> customer = customerService.getCustomerById(id);
+
+        if (customer.isEmpty()) {
+            return ResponseEntity.notFound().build();
         }
+
+        Customer customerToUpdate = customer.get();
+        customerToUpdate.setName(updateRequest.getName());
+        customerToUpdate.setAddress(updateRequest.getAddress());
+        customerToUpdate.setPhone(updateRequest.getPhone());
+        customerToUpdate.setCardID(updateRequest.getCardID());
+
+        Customer updatedCustomer = customerService.updateCustomer(customerToUpdate);
+        CustomerResponse response = convertToResponse(updatedCustomer);
+
+        return ResponseEntity.ok(response);
     }
 
     // 删除顾客
-    @DeleteMapping("delete/{id}")
-    public ResponseEntity<ApiResponse<String>> deleteCustomer(@PathVariable int id) {
-        try {
-            // 检查顾客是否存在
-            Optional<Customer> customer = customerService.getCustomerById(id);
-            if (customer.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(new ApiResponse<>(false, "顾客不存在，删除失败", null));
-            }
-
-            // 删除顾客
-            customerService.deleteCustomer(id);
-            return ResponseEntity.ok(new ApiResponse<>(true, "删除顾客成功", null));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse<>(false, "服务器错误", null));
-        }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteCustomer(@PathVariable int id) {
+        boolean deleted = customerService.deleteCustomerById(id);
+        return deleted ?
+                ResponseEntity.noContent().build() :
+                ResponseEntity.notFound().build();
     }
 
-    // 修改顾客
-    @PutMapping("update/{id}")
-    public ResponseEntity<ApiResponse<Customer>> updateCustomer(
-            @PathVariable int id,
-            @Valid @RequestBody CustomerRequest updateRequest) {
-        try {
-            // 检查顾客是否存在
-            Optional<Customer> oldCustomer = customerService.getCustomerById(id);
-            if (oldCustomer.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(new ApiResponse<>(false, "顾客不存在，更新失败", null));
-            }
-
-            // 更新顾客信息
-            Customer newcustomer = oldCustomer.get();
-            newcustomer.setName(updateRequest.getName());
-            newcustomer.setAddress(updateRequest.getAddress());
-            newcustomer.setPhone(updateRequest.getPhone());
-            newcustomer.setCardID(updateRequest.getCardID());
-
-            // 保存更新后的顾客信息
-            Customer updatedCustomer = customerService.updateCustomer(newcustomer);
-            return ResponseEntity.ok(new ApiResponse<>(true, "更新顾客信息成功", updatedCustomer));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse<>(false, "服务器错误", null));
-        }
+    // 辅助方法：将Customer转换为CustomerResponse
+    private CustomerResponse convertToResponse(Customer customer) {
+        CustomerResponse response = new CustomerResponse();
+        response.setName(customer.getName());
+        response.setAddress(customer.getAddress());
+        response.setPhone(customer.getPhone());
+        response.setCardID(customer.getCardID());
+        return response;
     }
-
-
 }

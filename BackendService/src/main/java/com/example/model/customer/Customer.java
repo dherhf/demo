@@ -1,26 +1,31 @@
 package com.example.model.customer;
 
 import com.example.model.order.Order;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
+@EqualsAndHashCode(exclude = {"orders"})
+@ToString(exclude = {"orders"})
 @Entity
-@Table
+@Table(name = "customer")
 public class Customer {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    // 顾客姓名
-    private String name;
-    // 顾客地址
+
     private String address;
-    // 顾客手机号
-    private String phone;
-    // 顾客会员卡号
     private String cardID;
-    @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Set<Order> orders;
+
+    private String name;
+
+    private String phone;
+
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<Order> orders = new ArrayList<>();
 }

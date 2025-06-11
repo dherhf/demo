@@ -1,10 +1,12 @@
 package com.example.controller;
 
-import com.example.dto.ApiResponse;
+import com.example.dto.desk.DeskResponse;
+import com.example.model.desk.Desk;
 import com.example.service.DeskService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping("api/desk")
@@ -17,42 +19,44 @@ public class DeskController {
         this.deskService = deskService;
     }
 
-    // 判断餐台是否开发
-    @GetMapping("is-open/{id}")
-    public ResponseEntity<ApiResponse<Boolean>> isDeskOpen (@PathVariable int id) {
-        try {
-            boolean isOpen = deskService.deskIsOpen(id);
-            return ResponseEntity.ok(
-                    new ApiResponse<>(true, "查询餐台状态成功", isOpen)
-            );
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(
-                    new ApiResponse<>(false, "查询餐台状态失败:", false)
-            );
+    // 获取餐台状态
+    @GetMapping("/{id}/status")
+    public ResponseEntity<DeskResponse> getDeskStatus(@PathVariable int id) {
+        Optional<Desk> desk = deskService.getDeskById(id);
+        if (desk.isPresent()) {
+            DeskResponse deskResponse = convertToResponse(desk.get());
+            return ResponseEntity.ok(deskResponse);
         }
+        return ResponseEntity.notFound().build();
     }
 
-    // 改变餐台开放状态
-    @PutMapping("change-status/{id}")
-    public ResponseEntity<ApiResponse<Boolean>> changeDeskStatus(
-            @PathVariable int id,
-            @RequestParam boolean open) {
-        try {
-            boolean result = deskService.changeDeskStatus(id, open);
-            if (result) {
-                return ResponseEntity.ok(
-                        new ApiResponse<>(true, "餐台状态更新成功", open)
-                );
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(new ApiResponse<>(false, "餐台不存在，更新失败", false)
-                );
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse<>(false, "更新餐台状态失败" , false)
-            );
+    // 打开餐台
+    @PostMapping("/{id}/open")
+    public ResponseEntity<DeskResponse> openDesk(@PathVariable int id) {
+        Optional<Desk> desk = deskService.openDesk(id);
+        if (desk.isPresent()) {
+            DeskResponse deskResponse = convertToResponse(desk.get());
+            return ResponseEntity.ok(deskResponse);
         }
+        return ResponseEntity.notFound().build();
+    }
+
+    @PostMapping("/{id}/close")
+    public ResponseEntity<DeskResponse> closeDesk(@PathVariable int id){
+        Optional<Desk> desk = deskService.closeDesk(id);
+        if (desk.isPresent()) {
+            DeskResponse deskResponse = convertToResponse(desk.get());
+            return ResponseEntity.ok(deskResponse);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    private DeskResponse convertToResponse(Desk desk) {
+        DeskResponse response = new DeskResponse();
+        response.setCode(desk.getCode());
+        response.setDescription(desk.getDescription());
+        response.setCapacity(desk.getCapacity());
+        response.setOpen(desk.isOpen());
+        return response;
     }
 }

@@ -1,7 +1,7 @@
 package com.example.controller;
 
-import com.example.dto.ApiResponse;
-import com.example.dto.DishHintRequest;
+import com.example.dto.dish.DishHintRequest;
+import com.example.dto.dish.DishHintResponse;
 import com.example.model.dish.DishHint;
 import com.example.service.DishHintService;
 import jakarta.validation.Valid;
@@ -21,64 +21,80 @@ public class DishHintController {
         this.dishHintService = dishHintService;
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<DishHint>> getDishHintById(@PathVariable Long id) {
-        Optional<DishHint> dishHint = dishHintService.getDishHintById(id);
-        return dishHint.map(hint -> ResponseEntity.ok(new ApiResponse<>(true, "", hint)))
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(new ApiResponse<>(false, "菜品提示不存在，ID: " + id, null)));
-    }
-
-    @PostMapping("/add")
-    public ResponseEntity<ApiResponse<DishHint>>  addDishHint(@Valid @RequestBody DishHintRequest hint) {
+    // 创建新的菜品提示
+    @PostMapping
+    public ResponseEntity<DishHintResponse> createDishHint(@Valid @RequestBody DishHintRequest request) {
         try {
-            DishHint dishHint  = new DishHint();
-            dishHint.setHintType(hint.getHintType());
-            dishHint.setHintText(hint.getHintText());
-            dishHint.setPriority(hint.getPriority());
-            dishHintService.addDishHint(dishHint);
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(new ApiResponse<>(true, "", dishHint));
+            DishHint dishHint = new DishHint();
+            dishHint.setHintType(request.getHintType());
+            dishHint.setHintText(request.getHintText());
+            dishHint.setPriority(request.getPriority());
+
+            DishHint savedHint = dishHintService.addDishHint(dishHint);
+            DishHintResponse response = convertToResponse(savedHint);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse<>(false,"",null));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<ApiResponse<DishHint>> updateDishHint(
-            @PathVariable long id,
-            @Valid @RequestBody DishHintRequest hint){
+    // 根据ID获取单个菜品提示
+    @GetMapping("/{id}")
+    public ResponseEntity<DishHintResponse> getDishHintById(@PathVariable Long id) {
+        Optional<DishHint> dishHint = dishHintService.getDishHintById(id);
+        return dishHint.map(hint -> ResponseEntity.ok(convertToResponse(hint)))
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    // 更新现有菜品提示
+    @PutMapping("/{id}")
+    public ResponseEntity<DishHintResponse> updateDishHint(
+            @PathVariable Long id,
+            @Valid @RequestBody DishHintRequest request) {
         try {
-            Optional<DishHint> dishHint = dishHintService.getDishHintById(id);
-            if(dishHint.isPresent()) {
-                dishHint.get().setHintType(hint.getHintType());
-                dishHint.get().setHintText(hint.getHintText());
-                dishHint.get().setPriority(hint.getPriority());
-                dishHintService.updateDishHint(dishHint.get());
-                return ResponseEntity.ok(new ApiResponse<>(true, "", dishHint.get()));
+            Optional<DishHint> existingHint = dishHintService.getDishHintById(id);
+            if (existingHint.isPresent()) {
+                DishHint dishHint = existingHint.get();
+                dishHint.setHintType(request.getHintType());
+                dishHint.setHintText(request.getHintText());
+                dishHint.setPriority(request.getPriority());
+
+                DishHint updatedHint = dishHintService.updateDishHint(dishHint);
+                DishHintResponse response = convertToResponse(updatedHint);
+
+                return ResponseEntity.ok(response);
             } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(new ApiResponse<>(false,"<UNK>ID: " + id, null));
+                return ResponseEntity.notFound().build();
             }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse<>(false,"",null));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<ApiResponse<String>> deleteDishHint(@PathVariable Long id) {
+    // 删除菜品提示
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteDishHint(@PathVariable Long id) {
         try {
-            dishHintService.deleteDishHint(id);
-            return ResponseEntity.ok(
-                    new ApiResponse<>(true, "",null)
-            );
-        } catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse<>(false,"服务器错误",null));
+            Optional<DishHint> existingHint = dishHintService.getDishHintById(id);
+            if (existingHint.isPresent()) {
+                dishHintService.deleteDishHint(id);
+                return ResponseEntity.noContent().build();
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
+    // 辅助方法：将实体转换为响应DTO
+    private DishHintResponse convertToResponse(DishHint dishHint) {
+        DishHintResponse response = new DishHintResponse();
+        response.setHintType(dishHint.getHintType());
+        response.setHintText(dishHint.getHintText());
+        response.setPriority(dishHint.getPriority());
+        return response;
+    }
 
 }

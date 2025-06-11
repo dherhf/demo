@@ -1,7 +1,14 @@
 package com.example.service;
 
-import org.springframework.stereotype.Service;
+import com.example.model.dish.Dish;
 
-@Service
-public class DishService {
+import java.util.List;
+import java.util.Optional;
+
+public interface DishService {
+    Optional<Dish> findDishById(Long id);
+    List<Dish> findAllByDishCategoryId(int dishCategoryId);
+    Dish addDish(Dish dish);
+    void deleteDishById(Long id);
+    List<Dish> getAllDishes();
 }

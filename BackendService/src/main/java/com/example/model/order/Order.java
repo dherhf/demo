@@ -3,41 +3,51 @@ package com.example.model.order;
 import com.example.model.customer.Customer;
 import com.example.model.desk.Desk;
 import com.example.model.employee.Employee;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
+@EqualsAndHashCode(exclude = {"customer", "desk", "employee", "orderItems"})
+@ToString(exclude = {"customer", "desk", "employee", "orderItems"})
 @Entity
-@Table(name = "`order`")
+@Table(name = "order")
 public class Order {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    // 订单创建时间
+    @Column(name = "create_date")
     private LocalDate createDate;
-    // 订单金额
-    private double price;
-    // 订单状态
-    @Enumerated(EnumType.STRING)
-    private OrderStatus status;
-    // 订单内容
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<OrderItem> orderItems = new HashSet<>();
-    // 餐台ID
-    @ManyToOne
-    @JoinColumn(name = "desk_id")
-    private Desk desk;
-    // 顾客ID
-    @ManyToOne
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal price;
+
+    private String status;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id")
+    @JsonBackReference
     private Customer customer;
-    // 服务员工ID
-    @ManyToOne
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "desk_id")
+    @JsonBackReference
+    private Desk desk;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id")
+    @JsonBackReference
     private Employee employee;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<OrderItem> orderItems = new ArrayList<>();
 }
+

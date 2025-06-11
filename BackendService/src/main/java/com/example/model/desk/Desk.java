@@ -1,27 +1,33 @@
+// Desk.java
 package com.example.model.desk;
 
 import com.example.model.order.Order;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.Data;
-import org.hibernate.annotations.ColumnDefault;
+import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
+@EqualsAndHashCode(exclude = {"orders"})
+@ToString(exclude = {"orders"})
 @Entity
-@Table
+@Table(name = "desk")
 public class Desk {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    // 餐台代码
-    private String code;
-    // 餐台描述
-    private String description;
-    // 餐台容量
+
     private int capacity;
-    // 餐台是否开放
-    @ColumnDefault("true")
+
+    private String code;
+
+    private String description;
+
     private boolean open;
-    // 当前活跃订单
-    @Transient
-    private Order currentOrder;
+
+    @OneToMany(mappedBy = "desk", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<Order> orders = new ArrayList<>();
 }

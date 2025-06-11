@@ -1,23 +1,29 @@
 package com.example.model.dish;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 @Data
+@EqualsAndHashCode(exclude = {"dish"})
+@ToString(exclude = {"dish"})
 @Entity
 @Table(name = "dish_hint")
 public class DishHint {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    // 提示类型
-    private String hintType;
-    // 提示文字
+
+    @Column(name = "hint_text")
     private String hintText;
-    // 提示优先权
+
+    @Column(name = "hint_type")
+    private String hintType;
+
     private String priority;
-    // 提示所属菜品
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dish_id")
+    @JsonBackReference
     private Dish dish;
 }

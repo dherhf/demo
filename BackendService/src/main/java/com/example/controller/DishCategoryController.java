@@ -1,7 +1,7 @@
 package com.example.controller;
 
-import com.example.dto.ApiResponse;
-import com.example.dto.DishCategoryRequest;
+import com.example.dto.dish.DishCategoryRequest;
+import com.example.dto.dish.DishCategoryResponse;
 import com.example.model.dish.DishCategory;
 import com.example.service.DishCategoryService;
 import jakarta.validation.Valid;
@@ -11,91 +11,97 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/dish-category")
 @CrossOrigin(origins = "*")
 public class DishCategoryController {
     private final DishCategoryService dishCategoryService;
+
     public DishCategoryController(DishCategoryService dishCategoryService) {
         this.dishCategoryService = dishCategoryService;
     }
 
     // 获取所有菜品分类
-    @GetMapping("/all")
-    public ResponseEntity<ApiResponse<List<DishCategory>>> getAllDishCategories() {
+    @GetMapping
+    public ResponseEntity<List<DishCategoryResponse>> getAllDishCategories() {
         List<DishCategory> categories = dishCategoryService.findAllDishCategory();
-        return ResponseEntity.ok(new ApiResponse<>(true, "获取所有菜品分类成功", categories));
-    }
 
-    // 根据ID获取菜品分类
-    @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Optional<DishCategory>>> getDishCategoryById(@PathVariable Long id) {
-        Optional<DishCategory> category = dishCategoryService.findDishCategoryById(id);
-        if (category.isPresent()) {
-            return ResponseEntity.ok(new ApiResponse<>(true, "获取菜品分类成功", category));
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ApiResponse<>(false, "菜品分类不存在", null));
-        }
+        List<DishCategoryResponse> dishCategoryResponses = categories.stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dishCategoryResponses);
     }
 
     // 添加菜品分类
-    @PostMapping("/add")
-    public ResponseEntity<ApiResponse<DishCategory>> addDishCategory(@Valid @RequestBody DishCategoryRequest category) {
+    @PostMapping
+    public ResponseEntity<DishCategoryResponse> addDishCategory(@Valid @RequestBody DishCategoryRequest category) {
         try {
             DishCategory dishCategory = new DishCategory();
             dishCategory.setTags(category.getTags());
             dishCategory.setDescription(category.getDescription());
-            dishCategoryService.addDishCategory(dishCategory);
+            DishCategoryResponse dishCategoryResponse = convertToResponse(dishCategoryService.addDishCategory(dishCategory));
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(new ApiResponse<>(true, "添加菜品分类成功", dishCategory));
+                    .body(dishCategoryResponse);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse<>(true, "添加菜品分类失败",null));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
+
+    // 根据ID获取菜品分类
+    @GetMapping("/{id}")
+    public ResponseEntity<DishCategoryResponse> getDishCategoryById(@PathVariable Long id) {
+        Optional<DishCategory> category = dishCategoryService.findDishCategoryById(id);
+
+        if (category.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        DishCategoryResponse dishCategoryResponse = convertToResponse(category.get());
+        return ResponseEntity.ok(dishCategoryResponse);
+    }
+
+
+
     // 更新菜品分类
-    @PutMapping("/update/{id}")
-    public ResponseEntity<ApiResponse<DishCategory>> updateDishCategory(
+    @PutMapping("/{id}")
+    public ResponseEntity<DishCategoryResponse> updateDishCategory(
             @PathVariable long id,
             @Valid @RequestBody DishCategoryRequest category) {
-
         try {
             Optional<DishCategory> dishCategory = dishCategoryService.findDishCategoryById(id);
             if (dishCategory.isPresent()) {
                 dishCategory.get().setTags(category.getTags());
                 dishCategory.get().setDescription(category.getDescription());
-                dishCategoryService.updateDishCategory(dishCategory.get());
-                return ResponseEntity.ok(new ApiResponse<>(true, "更新菜品分类成功", dishCategory.get()));
-            } else  {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(new ApiResponse<>(false, "更新菜品分类不存在",null));
+                DishCategoryResponse dishCategoryResponse = convertToResponse(dishCategoryService.updateDishCategory(dishCategory.get()));
+                return ResponseEntity.ok(dishCategoryResponse);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse<>(false, "更新菜品分类失败",null));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
     }
 
     // 删除菜品分类
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<ApiResponse<String>> deleteDishCategory(@PathVariable Long id) {
-        try {
-            Optional<DishCategory> category = dishCategoryService.findDishCategoryById(id);
-            if (category.isPresent()) {
-                dishCategoryService.deleteDishCategory(category.get().getId());
-                return ResponseEntity.ok(new ApiResponse<>(true, "删除菜品分类成功", null));
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(new ApiResponse<>(false, "菜品分类不存在，删除失败", null));
-            }
-        } catch (Exception e) {
-            return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse<>(false, "删除菜品分类失败",null));
-        }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteDishCategory(@PathVariable long id) {
+       boolean deleted = dishCategoryService.deleteDishCategory(id);
+       return deleted ?
+               ResponseEntity.noContent().build() :
+               ResponseEntity.notFound().build();
+
+    }
+
+    //
+    private DishCategoryResponse convertToResponse(DishCategory dishCategory) {
+        DishCategoryResponse dishCategoryResponse = new DishCategoryResponse();
+        dishCategoryResponse.setTags(dishCategory.getTags());
+        dishCategoryResponse.setDescription(dishCategory.getDescription());
+        return dishCategoryResponse;
+
     }
 
 }
