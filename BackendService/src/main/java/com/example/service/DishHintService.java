@@ -13,7 +13,7 @@ public class DishHintService {
         this.dishHintRepository = dishHintRepository;
     }
 
-    public Optional<DishHint> getDishHint(long id) {
+    public Optional<DishHint> getDishHintById(long id) {
         return dishHintRepository.findById(id);
     }
 
