@@ -16,6 +16,4 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     @NonNull
     Page<Customer> findAll(@NonNull Pageable pageable);
 
-    boolean existsByName(String name);
-
 }

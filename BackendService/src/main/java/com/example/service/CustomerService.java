@@ -34,8 +34,4 @@ public class CustomerService {
     public Customer updateCustomer(Customer customer) {
         return customerRepository.save(customer);
     }
-
-    public boolean isNameExists(String name){
-        return customerRepository.existsByName(name);
-    }
 }
