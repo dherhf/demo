@@ -5,6 +5,7 @@ import com.example.dto.DishCategoryRequest;
 import com.example.model.dish.DishCategory;
 import com.example.service.DishCategoryService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,7 +35,8 @@ public class DishCategoryController {
         if (category.isPresent()) {
             return ResponseEntity.ok(new ApiResponse<>(true, "获取菜品分类成功", category));
         } else {
-            return ResponseEntity.ok(new ApiResponse<>(false, "菜品分类不存在", null));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse<>(false, "菜品分类不存在", null));
         }
     }
 
@@ -46,9 +48,11 @@ public class DishCategoryController {
             dishCategory.setTags(category.getTags());
             dishCategory.setDescription(category.getDescription());
             dishCategoryService.addDishCategory(dishCategory);
-            return ResponseEntity.ok(new ApiResponse<>(true, "添加菜品分类成功", dishCategory));
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(new ApiResponse<>(true, "添加菜品分类成功", dishCategory));
         } catch (Exception e) {
-            return ResponseEntity.ok(new ApiResponse<>(true, "添加菜品分类失败",null));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse<>(true, "添加菜品分类失败",null));
         }
     }
 
@@ -66,10 +70,12 @@ public class DishCategoryController {
                 dishCategoryService.updateDishCategory(dishCategory.get());
                 return ResponseEntity.ok(new ApiResponse<>(true, "更新菜品分类成功", dishCategory.get()));
             } else  {
-                return ResponseEntity.ok(new ApiResponse<>(false, "更新菜品分类不存在",null));
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new ApiResponse<>(false, "更新菜品分类不存在",null));
             }
         } catch (Exception e) {
-            return ResponseEntity.ok(new ApiResponse<>(false, "更新菜品分类失败",null));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse<>(false, "更新菜品分类失败",null));
         }
 
     }
@@ -83,10 +89,12 @@ public class DishCategoryController {
                 dishCategoryService.deleteDishCategory(category.get().getId());
                 return ResponseEntity.ok(new ApiResponse<>(true, "删除菜品分类成功", null));
             } else {
-                return ResponseEntity.ok(new ApiResponse<>(false, "菜品分类不存在，删除失败", null));
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new ApiResponse<>(false, "菜品分类不存在，删除失败", null));
             }
         } catch (Exception e) {
-            return  ResponseEntity.ok(new ApiResponse<>(false, "删除菜品分类失败",null));
+            return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse<>(false, "删除菜品分类失败",null));
         }
     }
 

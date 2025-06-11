@@ -5,6 +5,7 @@ import com.example.dto.CustomerRequest;
 import com.example.model.customer.Customer;
 import com.example.service.CustomerService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,8 +24,13 @@ public class CustomerController {
 
     @GetMapping("get-all")
     public ResponseEntity<ApiResponse<List<Customer>>> getAll() {
-        List<Customer> allCustomers = customerService.getAllCustomers();
-        return ResponseEntity.ok(new ApiResponse<>(true, "获取所有顾客成功", allCustomers));
+        try {
+            List<Customer> allCustomers = customerService.getAllCustomers();
+            return ResponseEntity.ok(new ApiResponse<>(true, "获取所有顾客成功", allCustomers));
+        } catch (Exception e) {
+            return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse<>(false, "服务器错误", null));
+        }
     }
 
     @PostMapping("add")
@@ -36,9 +42,12 @@ public class CustomerController {
             newCustomer.setPhone(customerRequest.getPhone());
             newCustomer.setCardID(customerRequest.getCardID());
             System.out.println(newCustomer);
-            return ResponseEntity.ok(new ApiResponse<>(true, "添加顾客成功", customerService.addCustomer(newCustomer)));
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(new ApiResponse<>(true, "添加顾客成功", customerService.addCustomer(newCustomer))
+            );
         } catch (Exception e) {
-            return ResponseEntity.ok(new ApiResponse<>(false, "添加顾客过程中发生错误", null));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse<>(false, "服务器错误", null));
         }
     }
 
@@ -49,14 +58,16 @@ public class CustomerController {
             // 检查顾客是否存在
             Optional<Customer> customer = customerService.getCustomerById(id);
             if (customer.isEmpty()) {
-                return ResponseEntity.ok(new ApiResponse<>(false, "顾客不存在，删除失败", null));
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new ApiResponse<>(false, "顾客不存在，删除失败", null));
             }
 
             // 删除顾客
             customerService.deleteCustomer(id);
             return ResponseEntity.ok(new ApiResponse<>(true, "删除顾客成功", null));
         } catch (Exception e) {
-            return ResponseEntity.ok(new ApiResponse<>(false, "删除顾客过程中发生错误", null));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse<>(false, "服务器错误", null));
         }
     }
 
@@ -69,7 +80,8 @@ public class CustomerController {
             // 检查顾客是否存在
             Optional<Customer> oldCustomer = customerService.getCustomerById(id);
             if (oldCustomer.isEmpty()) {
-                return ResponseEntity.ok(new ApiResponse<>(false, "顾客不存在，更新失败", null));
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new ApiResponse<>(false, "顾客不存在，更新失败", null));
             }
 
             // 更新顾客信息
@@ -83,7 +95,8 @@ public class CustomerController {
             Customer updatedCustomer = customerService.updateCustomer(newcustomer);
             return ResponseEntity.ok(new ApiResponse<>(true, "更新顾客信息成功", updatedCustomer));
         } catch (Exception e) {
-            return ResponseEntity.ok(new ApiResponse<>(false, "更新顾客信息过程中发生错误:", null));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse<>(false, "服务器错误", null));
         }
     }
 
