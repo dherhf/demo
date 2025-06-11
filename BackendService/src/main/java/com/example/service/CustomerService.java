@@ -2,7 +2,6 @@ package com.example.service;
 
 import com.example.model.customer.Customer;
 import com.example.repository.CustomerRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,5 +21,21 @@ public class CustomerService {
 
     public List<Customer> getAllCustomers() {
         return customerRepository.findAll();
+    }
+
+    public Customer addCustomer(Customer customer) {
+        return customerRepository.save(customer);
+    }
+
+    public void deleteCustomer(int id) {
+        customerRepository.deleteById((long) id);
+    }
+
+    public Customer updateCustomer(Customer customer) {
+        return customerRepository.save(customer);
+    }
+
+    public boolean isNameExists(String name){
+        return customerRepository.existsByName(name);
     }
 }

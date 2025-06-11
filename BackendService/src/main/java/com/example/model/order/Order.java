@@ -2,6 +2,7 @@ package com.example.model.order;
 
 import com.example.model.customer.Customer;
 import com.example.model.desk.Desk;
+import com.example.model.employee.Employee;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -35,4 +36,8 @@ public class Order {
     @ManyToOne
     @JoinColumn(name = "customer_id")
     private Customer customer;
+    // 服务员工ID
+    @ManyToOne
+    @JoinColumn(name = "employee_id")
+    private Employee employee;
 }

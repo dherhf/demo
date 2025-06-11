@@ -1,7 +1,11 @@
 package com.example.model.employee;
 
+import com.example.model.order.Order;
 import jakarta.persistence.*;
 import lombok.Data;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Entity
@@ -16,4 +20,7 @@ public class Employee {
     private int age;
     // 员工手机号
     private String phone;
+    // 服务订单id
+    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Order>  orders =  new HashSet<>();
 }
