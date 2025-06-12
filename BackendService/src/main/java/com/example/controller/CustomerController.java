@@ -1,7 +1,6 @@
 package com.example.controller;
 
-import com.example.dto.customer.CustomerRequest;
-import com.example.dto.customer.CustomerResponse;
+import com.example.dto.customer.*;
 import com.example.model.customer.Customer;
 import com.example.service.CustomerService;
 import jakarta.validation.Valid;
@@ -19,65 +18,53 @@ import java.util.stream.Collectors;
 public class CustomerController {
 
     private final CustomerService customerService;
+    private final CustomerMapper customerMapper;
 
-    public CustomerController(CustomerService customerService) {
+    public CustomerController(CustomerService customerService, CustomerMapper customerMapper) {
         this.customerService = customerService;
+        this.customerMapper = customerMapper;
     }
 
     // 获取所有顾客
     @GetMapping
-    public ResponseEntity<List<CustomerResponse>> getAllCustomers() {
+    public ResponseEntity<List<CustomerDTO>> getAllCustomers() {
         List<Customer> allCustomers = customerService.getAllCustomers();
-        List<CustomerResponse> responses = allCustomers.stream()
-                .map(this::convertToResponse)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(responses);
+        List<CustomerDTO> customerDTO = allCustomers.stream().map(customerMapper::toDto).collect(Collectors.toList());
+        return ResponseEntity.ok(customerDTO);
     }
 
     // 创建新顾客
     @PostMapping
-    public ResponseEntity<CustomerResponse> createCustomer(@Valid @RequestBody CustomerRequest customerRequest) {
-        Customer newCustomer = new Customer();
-        newCustomer.setName(customerRequest.getName());
-        newCustomer.setAddress(customerRequest.getAddress());
-        newCustomer.setPhone(customerRequest.getPhone());
-        newCustomer.setCardID(customerRequest.getCardID());
-
-        Customer savedCustomer = customerService.addCustomer(newCustomer);
-        CustomerResponse response = convertToResponse(savedCustomer);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    public ResponseEntity<CustomerDTO> createCustomer(@Valid @RequestBody CreateCustomerRequest customerRequest) {
+        Customer customer = customerMapper.toCreateEntity(customerRequest);
+        customerService.addCustomer(customer);
+        CustomerDTO customerDTO = customerMapper.toDto(customer);
+        return ResponseEntity.status(HttpStatus.CREATED).body(customerDTO);
     }
 
     // 根据ID获取顾客
     @GetMapping("/{id}")
-    public ResponseEntity<CustomerResponse> getCustomerById(@PathVariable int id) {
+    public ResponseEntity<CustomerDTO> getCustomerById(@PathVariable int id) {
         Optional<Customer> customer = customerService.getCustomerById(id);
-        return customer.map(c -> ResponseEntity.ok(convertToResponse(c)))
+        return customer.map(value -> ResponseEntity.ok(customerMapper.toDto(value)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     // 更新顾客信息
     @PutMapping("/{id}")
-    public ResponseEntity<CustomerResponse> updateCustomer(
+    public ResponseEntity<CustomerDTO> updateCustomer(
             @PathVariable int id,
-            @Valid @RequestBody CustomerRequest updateRequest) {
-        Optional<Customer> customer = customerService.getCustomerById(id);
-
-        if (customer.isEmpty()) {
-            return ResponseEntity.notFound().build();
+            @Valid @RequestBody UpdateCustomerRequest updateRequest) {
+        if (updateRequest.getId() != null && !updateRequest.getId().equals(id)) {
+            return ResponseEntity.badRequest().build();
         }
-
-        Customer customerToUpdate = customer.get();
-        customerToUpdate.setName(updateRequest.getName());
-        customerToUpdate.setAddress(updateRequest.getAddress());
-        customerToUpdate.setPhone(updateRequest.getPhone());
-        customerToUpdate.setCardID(updateRequest.getCardID());
-
-        Customer updatedCustomer = customerService.updateCustomer(customerToUpdate);
-        CustomerResponse response = convertToResponse(updatedCustomer);
-
-        return ResponseEntity.ok(response);
+        Customer newCustomer = customerMapper.toUpdateEntity(updateRequest);
+        Optional<Customer> OldCustomer = customerService.getCustomerById(id);
+        if (OldCustomer.isPresent()) {
+            customerService.updateCustomer(newCustomer);
+            return ResponseEntity.ok(customerMapper.toDto(newCustomer));
+        }
+        return ResponseEntity.notFound().build();
     }
 
     // 删除顾客
@@ -89,13 +76,4 @@ public class CustomerController {
                 ResponseEntity.notFound().build();
     }
 
-    // 辅助方法：将Customer转换为CustomerResponse
-    private CustomerResponse convertToResponse(Customer customer) {
-        CustomerResponse response = new CustomerResponse();
-        response.setName(customer.getName());
-        response.setAddress(customer.getAddress());
-        response.setPhone(customer.getPhone());
-        response.setCardID(customer.getCardID());
-        return response;
-    }
 }

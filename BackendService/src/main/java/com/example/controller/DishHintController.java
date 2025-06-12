@@ -1,7 +1,7 @@
 package com.example.controller;
 
-import com.example.dto.dish.DishHintRequest;
-import com.example.dto.dish.DishHintResponse;
+import com.example.dto.dish.hint.DishHintRequest;
+import com.example.dto.dish.hint.DishHintDTO;
 import com.example.model.dish.DishHint;
 import com.example.service.DishHintService;
 import jakarta.validation.Valid;
@@ -23,7 +23,7 @@ public class DishHintController {
 
     // 创建新的菜品提示
     @PostMapping
-    public ResponseEntity<DishHintResponse> createDishHint(@Valid @RequestBody DishHintRequest request) {
+    public ResponseEntity<DishHintDTO> createDishHint(@Valid @RequestBody DishHintRequest request) {
         try {
             DishHint dishHint = new DishHint();
             dishHint.setHintType(request.getHintType());
@@ -31,7 +31,7 @@ public class DishHintController {
             dishHint.setPriority(request.getPriority());
 
             DishHint savedHint = dishHintService.addDishHint(dishHint);
-            DishHintResponse response = convertToResponse(savedHint);
+            DishHintDTO response = convertToResponse(savedHint);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception e) {
@@ -41,7 +41,7 @@ public class DishHintController {
 
     // 根据ID获取单个菜品提示
     @GetMapping("/{id}")
-    public ResponseEntity<DishHintResponse> getDishHintById(@PathVariable Long id) {
+    public ResponseEntity<DishHintDTO> getDishHintById(@PathVariable Long id) {
         Optional<DishHint> dishHint = dishHintService.getDishHintById(id);
         return dishHint.map(hint -> ResponseEntity.ok(convertToResponse(hint)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -49,7 +49,7 @@ public class DishHintController {
 
     // 更新现有菜品提示
     @PutMapping("/{id}")
-    public ResponseEntity<DishHintResponse> updateDishHint(
+    public ResponseEntity<DishHintDTO> updateDishHint(
             @PathVariable Long id,
             @Valid @RequestBody DishHintRequest request) {
         try {
@@ -61,7 +61,7 @@ public class DishHintController {
                 dishHint.setPriority(request.getPriority());
 
                 DishHint updatedHint = dishHintService.updateDishHint(dishHint);
-                DishHintResponse response = convertToResponse(updatedHint);
+                DishHintDTO response = convertToResponse(updatedHint);
 
                 return ResponseEntity.ok(response);
             } else {
@@ -89,8 +89,8 @@ public class DishHintController {
     }
 
     // 辅助方法：将实体转换为响应DTO
-    private DishHintResponse convertToResponse(DishHint dishHint) {
-        DishHintResponse response = new DishHintResponse();
+    private DishHintDTO convertToResponse(DishHint dishHint) {
+        DishHintDTO response = new DishHintDTO();
         response.setHintType(dishHint.getHintType());
         response.setHintText(dishHint.getHintText());
         response.setPriority(dishHint.getPriority());

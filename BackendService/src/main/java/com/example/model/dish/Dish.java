@@ -36,6 +36,4 @@ public class Dish {
     @JsonManagedReference
     private List<DishHint> dishHints = new ArrayList<>();
 
-    // 移除了 List<OrderItem> orderItems
-    // 如果需要查询某个菜品的订单历史，通过Repository查询即可
 }

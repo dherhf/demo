@@ -3,7 +3,7 @@ package com.example.dto.desk;
 import lombok.Data;
 
 @Data
-public class DeskResponse {
+public class DeskDTO {
     private int id;
     private String code;
     private String description;

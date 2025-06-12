@@ -9,6 +9,7 @@ public interface DishService {
     Optional<Dish> findDishById(Long id);
     List<Dish> findAllByDishCategoryId(int dishCategoryId);
     Dish addDish(Dish dish);
+    Dish updateDish(Dish dish);
     void deleteDishById(Long id);
     List<Dish> getAllDishes();
 }

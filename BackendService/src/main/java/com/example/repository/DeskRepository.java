@@ -15,10 +15,10 @@ public interface DeskRepository extends JpaRepository<Desk, Long> {
     Optional<Desk> findByCode(String code);
 
     // 查找所有开放的桌子
-    List<Desk> findByIsOpenTrue();
+    List<Desk> findByOpenTrue();
 
     // 查找所有关闭的桌子
-    List<Desk> findByIsOpenFalse();
+    List<Desk> findByOpenFalse();
 
     // 根据容量查找桌子
     List<Desk> findByCapacity(int capacity);

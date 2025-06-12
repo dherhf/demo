@@ -1,7 +1,6 @@
 package com.example.controller;
 
-import com.example.dto.dish.DishRequest;
-import com.example.dto.dish.DishResponse;
+import com.example.dto.dish.*;
 import com.example.model.dish.Dish;
 import com.example.model.dish.DishCategory;
 import com.example.service.DishCategoryService;
@@ -21,61 +20,61 @@ public class DishController {
 
     private final DishService dishService;
     private final DishCategoryService dishCategoryService;
+    private final DishMapper  dishMapper;
 
-    public DishController(DishService dishService, DishCategoryService dishCategoryService) {
+    public DishController(DishService dishService, DishCategoryService dishCategoryService, DishMapper dishMapper) {
         this.dishService = dishService;
         this.dishCategoryService = dishCategoryService;
+        this.dishMapper = dishMapper;
     }
 
     @GetMapping
-    public ResponseEntity<List<DishResponse>> getAllDish() {
+    public ResponseEntity<List<DishDTO>> getAllDish() {
         List<Dish> dishes = dishService.getAllDishes();
-        List<DishResponse> dishResponseList = dishes.stream()
-                .map(this::convertToResponse).collect(Collectors.toList());
-        return ResponseEntity.ok(dishResponseList);
+        List<DishDTO> dishDTOList = dishes.stream()
+                .map(dishMapper::toDTO).collect(Collectors.toList());
+        return ResponseEntity.ok(dishDTOList);
     }
 
     @PostMapping
-    public ResponseEntity<DishResponse> createDish(@RequestBody DishRequest dishRequest) {
-        Optional<DishCategory> dishCategory = dishCategoryService.findDishCategoryById(dishRequest.getDishCategoryId());
+    public ResponseEntity<DishDTO> createDish(@RequestBody CreateDishRequest dishRequest) {
+        Optional<DishCategory> dishCategory = dishCategoryService.findDishCategoryById(dishRequest.getCategoryId());
         if (dishCategory.isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
-        Dish dish = convertToEntity(dishRequest, dishCategory.get());
+        Dish dish = dishMapper.toEntity(dishRequest);
         Dish savedDish = dishService.addDish(dish);
-        DishResponse dishResponse = convertToResponse(savedDish);
-        return new ResponseEntity<>(dishResponse, HttpStatus.CREATED);
+        DishDTO dishDTO = dishMapper.toDTO(savedDish);
+        return ResponseEntity.status(HttpStatus.CREATED).body(dishDTO);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<DishResponse> getDishById(@PathVariable Long id) {
+    public ResponseEntity<DishDTO> getDishById(@PathVariable Long id) {
         Optional<Dish> dishOptional = dishService.findDishById(id);
         if (dishOptional.isPresent()) {
             Dish dish = dishOptional.get();
-            DishResponse dishResponse = convertToResponse(dish);
-            return ResponseEntity.ok(dishResponse);
+            DishDTO dishDTO = dishMapper.toDTO(dish);
+            return ResponseEntity.ok(dishDTO);
         } else {
             return ResponseEntity.notFound().build();
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<DishResponse> updateDish(
+    public ResponseEntity<DishDTO> updateDish(
             @PathVariable Long id,
-            @RequestBody DishRequest dishRequest) {
-        Optional<Dish> dishOptional = dishService.findDishById(id);
-        if (dishOptional.isPresent()) {
-            Optional<DishCategory> dishCategory = dishCategoryService.findDishCategoryById(dishRequest.getDishCategoryId());
-            if (dishCategory.isEmpty()) {
-                return ResponseEntity.badRequest().build();
-            }
-            Dish dish = convertToEntity(dishRequest, dishCategory.get());
-            Dish updatedDish = dishService.addDish(dish);
-            DishResponse dishResponse = convertToResponse(updatedDish);
-            return ResponseEntity.ok(dishResponse);
-        } else {
-            return ResponseEntity.notFound().build();
+            @RequestBody UpdateDishRequest dishRequest) {
+        if (dishRequest.getId() != null && !dishRequest.getId().equals(id)){
+            return ResponseEntity.badRequest().build();
         }
+        Optional<DishCategory> dishCategory = dishCategoryService.findDishCategoryById(dishRequest.getCategoryId());
+        if (dishCategory.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+        Dish dish = dishMapper.toEntity(dishRequest);
+        Dish newDish = dishService.updateDish(dish);
+        DishDTO dishDTO = dishMapper.toDTO(newDish);
+        return ResponseEntity.ok(dishDTO);
     }
 
     @DeleteMapping("/{id}")
@@ -90,23 +89,4 @@ public class DishController {
         }
     }
 
-    private DishResponse convertToResponse(Dish dish){
-        DishResponse dishResponse = new DishResponse();
-        dishResponse.setId(dish.getId());
-        dishResponse.setName(dish.getName());
-        dishResponse.setCode(dish.getCode());
-        dishResponse.setDescription(dish.getDescription());
-        dishResponse.setImageUrl(dish.getImageUrl());
-        return dishResponse;
-    }
-
-    private Dish convertToEntity(DishRequest dishRequest,DishCategory dishCategory) {
-        Dish dish = new Dish();
-        dish.setName(dishRequest.getName());
-        dish.setCode(dishRequest.getCode());
-        dish.setDescription(dishRequest.getDescription());
-        dish.setImageUrl(dishRequest.getImageUrl());
-        dish.setDishCategory(dishCategory);
-        return dish;
-    }
 }

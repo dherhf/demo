@@ -1,7 +1,9 @@
 package com.example.controller;
 
-import com.example.dto.dish.DishCategoryRequest;
-import com.example.dto.dish.DishCategoryResponse;
+import com.example.dto.dish.category.CreateDishCategoryRequest;
+import com.example.dto.dish.category.DishCategoryDTO;
+import com.example.dto.dish.category.DishCategoryMapper;
+import com.example.dto.dish.category.UpdateDishCategoryRequest;
 import com.example.model.dish.DishCategory;
 import com.example.service.DishCategoryService;
 import jakarta.validation.Valid;
@@ -18,32 +20,33 @@ import java.util.stream.Collectors;
 @CrossOrigin(origins = "*")
 public class DishCategoryController {
     private final DishCategoryService dishCategoryService;
+    private final DishCategoryMapper dishCategoryMapper;
 
-    public DishCategoryController(DishCategoryService dishCategoryService) {
+    public DishCategoryController(DishCategoryService dishCategoryService, DishCategoryMapper dishCategoryMapper) {
         this.dishCategoryService = dishCategoryService;
+        this.dishCategoryMapper = dishCategoryMapper;
     }
 
     // 获取所有菜品分类
     @GetMapping
-    public ResponseEntity<List<DishCategoryResponse>> getAllDishCategories() {
+    public ResponseEntity<List<DishCategoryDTO>> getAllDishCategories() {
         List<DishCategory> categories = dishCategoryService.findAllDishCategory();
 
-        List<DishCategoryResponse> dishCategoryResponses = categories.stream()
-                .map(this::convertToResponse)
+        List<DishCategoryDTO> dishCategoryDTOList = categories.stream()
+                .map(dishCategoryMapper::toDTO)
                 .collect(Collectors.toList());
-        return ResponseEntity.ok(dishCategoryResponses);
+        return ResponseEntity.ok(dishCategoryDTOList);
     }
 
     // 添加菜品分类
     @PostMapping
-    public ResponseEntity<DishCategoryResponse> addDishCategory(@Valid @RequestBody DishCategoryRequest category) {
+    public ResponseEntity<DishCategoryDTO> addDishCategory(@Valid @RequestBody CreateDishCategoryRequest category) {
         try {
-            DishCategory dishCategory = new DishCategory();
-            dishCategory.setTags(category.getTags());
-            dishCategory.setDescription(category.getDescription());
-            DishCategoryResponse dishCategoryResponse = convertToResponse(dishCategoryService.addDishCategory(dishCategory));
+            DishCategory dishCategory = dishCategoryMapper.toEntity(category);
+            DishCategory addedDishCategory = dishCategoryService.addDishCategory(dishCategory);
+            DishCategoryDTO dishCategoryDTO = dishCategoryMapper.toDTO(addedDishCategory);
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(dishCategoryResponse);
+                    .body(dishCategoryDTO);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -52,30 +55,30 @@ public class DishCategoryController {
 
     // 根据ID获取菜品分类
     @GetMapping("/{id}")
-    public ResponseEntity<DishCategoryResponse> getDishCategoryById(@PathVariable Long id) {
+    public ResponseEntity<DishCategoryDTO> getDishCategoryById(@PathVariable Long id) {
         Optional<DishCategory> category = dishCategoryService.findDishCategoryById(id);
 
         if (category.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        DishCategoryResponse dishCategoryResponse = convertToResponse(category.get());
-        return ResponseEntity.ok(dishCategoryResponse);
+        DishCategoryDTO dishCategoryDTO = dishCategoryMapper.toDTO(category.get());
+        return ResponseEntity.ok(dishCategoryDTO);
     }
 
 
 
     // 更新菜品分类
     @PutMapping("/{id}")
-    public ResponseEntity<DishCategoryResponse> updateDishCategory(
+    public ResponseEntity<DishCategoryDTO> updateDishCategory(
             @PathVariable long id,
-            @Valid @RequestBody DishCategoryRequest category) {
+            @Valid @RequestBody UpdateDishCategoryRequest category) {
         try {
             Optional<DishCategory> dishCategory = dishCategoryService.findDishCategoryById(id);
             if (dishCategory.isPresent()) {
-                dishCategory.get().setTags(category.getTags());
-                dishCategory.get().setDescription(category.getDescription());
-                DishCategoryResponse dishCategoryResponse = convertToResponse(dishCategoryService.updateDishCategory(dishCategory.get()));
-                return ResponseEntity.ok(dishCategoryResponse);
+                DishCategory newDishCategory = dishCategoryMapper.toEntity(category);
+                DishCategory updatedDishCategory = dishCategoryService.updateDishCategory(newDishCategory);
+                DishCategoryDTO dishCategoryDTO = dishCategoryMapper.toDTO(updatedDishCategory);
+                return ResponseEntity.ok(dishCategoryDTO);
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
@@ -92,15 +95,6 @@ public class DishCategoryController {
        return deleted ?
                ResponseEntity.noContent().build() :
                ResponseEntity.notFound().build();
-
-    }
-
-    //
-    private DishCategoryResponse convertToResponse(DishCategory dishCategory) {
-        DishCategoryResponse dishCategoryResponse = new DishCategoryResponse();
-        dishCategoryResponse.setTags(dishCategory.getTags());
-        dishCategoryResponse.setDescription(dishCategory.getDescription());
-        return dishCategoryResponse;
 
     }
 

@@ -1,4 +1,4 @@
-package com.example.dto.dish;
+package com.example.dto.dish.hint;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
