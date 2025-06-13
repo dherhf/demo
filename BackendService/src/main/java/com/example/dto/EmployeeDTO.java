@@ -12,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EmployeeDTO {
-    private int id;
+    private Long id;
     @NotBlank
     private int age;
     @NotBlank

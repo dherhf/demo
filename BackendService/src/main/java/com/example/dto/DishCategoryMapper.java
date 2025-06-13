@@ -2,6 +2,7 @@ package com.example.dto;
 
 import com.example.model.dish.Dish;
 import com.example.model.dish.DishCategory;
+import com.example.model.employee.Employee;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -15,6 +16,8 @@ public interface DishCategoryMapper {
     DishCategoryDTO toDTO(DishCategory dishCategory);
 
     DishCategory toEntity(DishCategoryDTO dishCategoryDTO);
+
+    DishCategory toEntity(DishCategoryDTO dishCategoryDTO, List<Dish> dishes);
 
     @Named("mapDishesToIds")
     default List<Long> mapDishesToIds(List<Dish> dishes) {

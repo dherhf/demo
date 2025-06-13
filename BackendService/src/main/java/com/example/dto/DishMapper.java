@@ -14,13 +14,13 @@ import java.util.stream.Collectors;
 public interface DishMapper {
 
     @Mapping(target = "categoryId", source = "dishCategory.id")
-    @Mapping(target = "hints", source = "dishHints", qualifiedByName = "mapDishHintsToDto")
+    @Mapping(target = "hints", source = "dishHints", qualifiedByName = "mapDishHintsToIds")
     DishDTO toDTO(Dish dish);
 
     Dish toEntity(DishDTO dishDTO);
 
-    @Named("mapDishHintsToDto")
-    default List<Long> mapDishHintsToDto(List<DishHint> dishHints) {
+    @Named("mapDishHintsToIds")
+    default List<Long> mapDishHintsToIds(List<DishHint> dishHints) {
         if (CollectionUtils.isEmpty(dishHints)) {
             return List.of();
         }
