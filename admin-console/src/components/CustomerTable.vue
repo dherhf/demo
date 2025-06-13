@@ -1,192 +1,118 @@
 <template>
-  <div>
-    <div>
-      <h1>客户列表</h1>
-      <button @click="handleAddCustomer">
-        <i class="fa fa-plus"></i> 添加客户
+  <div class="container mx-auto p-4">
+    <h1 class="text-2xl font-bold mb-6 text-center">顾客表</h1>
+
+    <!-- 加载状态 -->
+    <div v-if="loading" class="py-16 text-center">
+      <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
+      <p class="mt-4 text-lg text-gray-600">正在加载顾客数据...</p>
+    </div>
+
+    <!-- 错误状态 -->
+    <div v-else-if="error" class="py-16 text-center">
+      <div class="text-red-500 mb-4">
+        <i class="fa fa-exclamation-triangle text-4xl"></i>
+      </div>
+      <p class="text-xl text-red-600 mb-4">{{ error }}</p>
+      <button @click="fetchData" class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+        <i class="fa fa-refresh mr-2"></i>重试
       </button>
     </div>
 
-    <!-- 搜索和筛选 -->
-    <div>
-      <div>
-        <div>
-          <label>搜索</label>
-          <div>
-            <input
-                type="text"
-                placeholder="搜索客户名称或电话..."
-                v-model="searchQuery"
-                @keyup.enter="filterCustomers"
-            >
-            <div @click="filterCustomers">
-              <i class="fa fa-search"></i>
-            </div>
-          </div>
-        </div>
-      </div>
+    <!-- 数据表格 -->
+    <div v-else class="overflow-x-auto">
+      <table class="min-w-full bg-white rounded-lg shadow-md">
+        <thead>
+        <tr class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
+          <th class="py-3 px-6 text-left">ID</th>
+          <th class="py-3 px-6 text-left">姓名</th>
+          <th class="py-3 px-6 text-left">地址</th>
+          <th class="py-3 px-6 text-left">电话</th>
+          <th class="py-3 px-6 text-left">证件号</th>
+          <th class="py-3 px-6 text-center">订单数</th>
+        </tr>
+        </thead>
+        <tbody class="text-gray-600 text-sm">
+        <tr v-for="customer in customers" :key="customer.id" class="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+          <td class="py-3 px-6">{{ customer.id }}</td>
+          <td class="py-3 px-6 font-medium">{{ customer.name }}</td>
+          <td class="py-3 px-6">{{ customer.address }}</td>
+          <td class="py-3 px-6">{{ formatPhone(customer.phone) }}</td>
+          <td class="py-3 px-6">{{ customer.cardID || '未填写' }}</td>
+          <td class="py-3 px-6 text-center">
+              <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                {{ customer.orderIds.length }}
+              </span>
+          </td>
+        </tr>
+        </tbody>
+      </table>
     </div>
 
-    <!-- 客户列表 -->
-    <div>
-      <div>
-        <table>
-          <thead>
-          <tr>
-            <th scope="col">ID</th>
-            <th scope="col">名称</th>
-            <th scope="col">地址</th>
-            <th scope="col">电话</th>
-            <th scope="col">身份证号</th>
-            <th scope="col">订单数</th>
-            <th scope="col">操作</th>
-          </tr>
-          </thead>
-          <tbody>
-          <!-- 加载状态 -->
-          <tr v-if="loading">
-            <td colspan="7">
-              <div>
-                <i class="fa fa-spinner fa-spin"></i>
-                <span>加载中...</span>
-              </div>
-            </td>
-          </tr>
-
-          <!-- 错误状态 -->
-          <tr v-else-if="error">
-            <td colspan="7">
-              <i class="fa fa-exclamation-circle"></i>
-              {{ error }}
-            </td>
-          </tr>
-
-          <!-- 空状态 -->
-          <tr v-else-if="filteredData.length === 0">
-            <td colspan="7">
-              <i></i>
-              未找到客户记录
-            </td>
-          </tr>
-
-          <!-- 客户数据 -->
-          <tr v-else v-for="customer in filteredData" :key="customer.id">
-            <td>{{ customer.id }}</td>
-            <td>{{ customer.name }}</td>
-            <td>{{ customer.address }}</td>
-            <td>{{ customer.phone }}</td>
-            <td>
-              {{ customer.cardID ? customer.cardID.replace(/(\d{6})\d+(\d{4})/, '$1****$2') : '-' }}
-            </td>
-            <td>
-                <span>
-                  {{ customer.orders.length }}
-                </span>
-            </td>
-            <td>
-              <button @click="handleEditCustomer(customer.id)">
-                <i>修改</i>
-              </button>
-              <button @click="handleDeleteCustomer(customer.id)">
-                <i>删除</i>
-              </button>
-            </td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
+    <!-- 表格下方的统计信息 -->
+    <div v-if="customers.length > 0" class="mt-4 text-sm text-gray-500">
+      共 {{ customers.length }} 条记录
     </div>
   </div>
 </template>
 
 <script setup>
-import {ref, computed, onMounted} from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
 
-// 页面加载时获取数据
-onMounted(() => {
-  fetchData();
-});
-
-const data = ref([]);
+// 定义响应式数据
+const customers = ref([]);
 const loading = ref(false);
 const error = ref(null);
-const searchQuery = ref('');
 
-// 计算属性，根据搜索条件过滤客户数据
-const filteredData = computed(() => {
-  if (!searchQuery.value.trim()) {
-    return data.value;
+// API配置
+const API_BASE_URL = 'http://localhost:8080/api';
+
+// 格式化手机号
+const formatPhone = (phone) => {
+  if (!phone) return '未填写';
+  // 简单的手机号格式化：11位数字添加空格分隔
+  if (/^\d{11}$/.test(phone)) {
+    return phone.replace(/(\d{3})(\d{4})(\d{4})/, '$1 $2 $3');
   }
-  
-  const query = searchQuery.value.toLowerCase().trim();
-  return data.value.filter(customer => 
-    (customer.name && customer.name.toLowerCase().includes(query)) ||
-    (customer.phone && customer.phone.toLowerCase().includes(query))
-  );
-});
+  return phone;
+};
 
+// 获取顾客数据
 const fetchData = async () => {
   loading.value = true;
   error.value = null;
 
   try {
-    const response = await axios.get('http://localhost:8080/api/customers', {
+    const response = await axios.get(`${API_BASE_URL}/customers`, {
       headers: {
         'Content-Type': 'application/json'
       }
     });
-    // 直接使用响应数据
-    data.value = response.data;
+    console.log(customers)
+    customers.value = response.data;
   } catch (err) {
-    error.value = err.response?.data?.message || err.message;
+    console.error('获取顾客数据失败:', err);
+    error.value = err.response?.data?.message || '无法连接到服务器，请检查API地址和服务器状态';
   } finally {
     loading.value = false;
   }
+};
+
+// 组件挂载后立即获取数据
+onMounted(() => {
+  fetchData();
+});
+</script>
+
+<style scoped>
+/* 为表格添加淡入动画 */
+tr {
+  animation: fadeIn 0.5s ease-in-out;
 }
 
-// 搜索客户
-const filterCustomers = () => {
-  // 已经通过计算属性实时过滤，这里可以添加其他搜索逻辑
-};
-
-// 处理添加客户
-const handleAddCustomer = () => {
-  // 这里添加打开添加客户表单的逻辑
-  console.log('添加客户');
-};
-
-// 处理编辑客户
-const handleEditCustomer = (id) => {
-  // 这里添加打开编辑客户表单的逻辑
-  console.log('编辑客户', id);
-};
-
-// 处理删除客户
-const handleDeleteCustomer = async (id) => {
-  if (!confirm('确定要删除这个客户吗？')) {
-    return;
-  }
-
-  try {
-    loading.value = true;
-    error.value = null;
-    
-    const response = await axios.delete(`api/customer/${id}`);
-    
-    if (response.data.success) {
-      // 从列表中移除已删除的客户
-      data.value = data.value.filter(customer => customer.id !== id);
-      // 显示成功消息
-      alert('客户删除成功');
-    } else {
-      error.value = response.data.message;
-    }
-  } catch (err) {
-    error.value = err.response?.data?.message || err.message;
-  } finally {
-    loading.value = false;
-  }
-};
-</script>
-    
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
