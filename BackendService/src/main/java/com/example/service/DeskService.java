@@ -1,11 +1,9 @@
 package com.example.service;
 
-import com.example.model.desk.Desk;
-
-import java.util.Optional;
+import com.example.dto.DeskDTO;
 
 public interface DeskService {
-    Optional<Desk> getDeskById(int id);
-    Optional<Desk> openDesk(int id);
-    Optional<Desk> closeDesk(int id);
+    DeskDTO getDeskById(Long id);
+    DeskDTO openDesk(Long id);
+    DeskDTO closeDesk(Long id);
 }

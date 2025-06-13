@@ -1,15 +1,15 @@
 package com.example.service;
 
-import com.example.model.dish.Dish;
+import com.example.dto.DishDTO;
 
 import java.util.List;
-import java.util.Optional;
+
 
 public interface DishService {
-    Optional<Dish> findDishById(Long id);
-    List<Dish> findAllByDishCategoryId(int dishCategoryId);
-    Dish addDish(Dish dish);
-    Dish updateDish(Dish dish);
-    void deleteDishById(Long id);
-    List<Dish> getAllDishes();
+    List<DishDTO> getAllDishes();
+    DishDTO getDishById(Long id);
+    DishDTO createDish(DishDTO DishDTO);
+    DishDTO updateDish(Long id, DishDTO DishDTO);
+    boolean deleteDishById(Long id);
+    List<DishDTO> findAllByDishCategoryId(int dishCategoryId);
 }

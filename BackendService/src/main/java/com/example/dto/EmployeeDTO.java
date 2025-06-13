@@ -1,4 +1,4 @@
-package com.example.dto.customer;
+package com.example.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -11,12 +11,14 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CustomerDTO {
-
+public class EmployeeDTO {
     private int id;
+    @NotBlank
+    private int age;
+    @NotBlank
     private String name;
-    private String address;
+    @NotBlank
+    @Size(min = 11, max = 11)
     private String phone;
-    private String cardID;
-    private List<Integer> orderIds;
+    private List<Long> orderIds;
 }

@@ -1,17 +1,12 @@
 package com.example.controller;
 
-import com.example.dto.dish.*;
-import com.example.model.dish.Dish;
-import com.example.model.dish.DishCategory;
-import com.example.service.DishCategoryService;
+import com.example.dto.DishDTO;
 import com.example.service.DishService;
-import org.springframework.http.HttpStatus;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/dish")
@@ -19,74 +14,67 @@ import java.util.stream.Collectors;
 public class DishController {
 
     private final DishService dishService;
-    private final DishCategoryService dishCategoryService;
-    private final DishMapper  dishMapper;
 
-    public DishController(DishService dishService, DishCategoryService dishCategoryService, DishMapper dishMapper) {
+    public DishController(DishService dishService) {
         this.dishService = dishService;
-        this.dishCategoryService = dishCategoryService;
-        this.dishMapper = dishMapper;
     }
 
     @GetMapping
     public ResponseEntity<List<DishDTO>> getAllDish() {
-        List<Dish> dishes = dishService.getAllDishes();
-        List<DishDTO> dishDTOList = dishes.stream()
-                .map(dishMapper::toDTO).collect(Collectors.toList());
-        return ResponseEntity.ok(dishDTOList);
+        try {
+            List<DishDTO> dishDTO = dishService.getAllDishes();
+            return ResponseEntity.ok().body(dishDTO);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
     @PostMapping
-    public ResponseEntity<DishDTO> createDish(@RequestBody CreateDishRequest dishRequest) {
-        Optional<DishCategory> dishCategory = dishCategoryService.findDishCategoryById(dishRequest.getCategoryId());
-        if (dishCategory.isEmpty()) {
-            return ResponseEntity.badRequest().build();
+    public ResponseEntity<DishDTO> createDish(@RequestBody DishDTO requestDTO) {
+        try {
+            DishDTO responseDTO = dishService.createDish(requestDTO);
+            return ResponseEntity.ok().body(responseDTO);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
         }
-        Dish dish = dishMapper.toEntity(dishRequest);
-        Dish savedDish = dishService.addDish(dish);
-        DishDTO dishDTO = dishMapper.toDTO(savedDish);
-        return ResponseEntity.status(HttpStatus.CREATED).body(dishDTO);
+
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<DishDTO> getDishById(@PathVariable Long id) {
-        Optional<Dish> dishOptional = dishService.findDishById(id);
-        if (dishOptional.isPresent()) {
-            Dish dish = dishOptional.get();
-            DishDTO dishDTO = dishMapper.toDTO(dish);
-            return ResponseEntity.ok(dishDTO);
-        } else {
+        try {
+            DishDTO responseDTO = dishService.getDishById(id);
+            return ResponseEntity.ok().body(responseDTO);
+        } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
         }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<DishDTO> updateDish(
             @PathVariable Long id,
-            @RequestBody UpdateDishRequest dishRequest) {
-        if (dishRequest.getId() != null && !dishRequest.getId().equals(id)){
+            @RequestBody DishDTO requestDTO) {
+        try {
+            DishDTO responseDTO = dishService.updateDish(id, requestDTO);
+            return ResponseEntity.ok().body(responseDTO);
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
         }
-        Optional<DishCategory> dishCategory = dishCategoryService.findDishCategoryById(dishRequest.getCategoryId());
-        if (dishCategory.isEmpty()) {
-            return ResponseEntity.badRequest().build();
-        }
-        Dish dish = dishMapper.toEntity(dishRequest);
-        Dish newDish = dishService.updateDish(dish);
-        DishDTO dishDTO = dishMapper.toDTO(newDish);
-        return ResponseEntity.ok(dishDTO);
+
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        Optional<Dish> dishOptional = dishService.findDishById(id);
-        if (dishOptional.isPresent()) {
-
-            dishService.deleteDishById(id);
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        boolean deleted = dishService.deleteDishById(id);
+        return deleted ?
+                ResponseEntity.noContent().build() :
+                ResponseEntity.notFound().build();
     }
 
 }

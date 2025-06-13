@@ -1,4 +1,4 @@
-package com.example.dto.customer;
+package com.example.dto;
 
 import com.example.model.customer.Customer;
 import com.example.model.order.Order;
@@ -15,18 +15,18 @@ public interface CustomerMapper {
     CustomerDTO toDto(Customer customer);
 
     @Named("mapOrdersToIds")
-    default List<Integer> mapOrdersToIds(List<Order> orders) {
+    default List<Long> mapOrdersToIds(List<Order> orders) {
         if (orders == null) {
             return null;
         }
         return orders.stream()
                 .map(Order::getId)
+                .map(Integer::longValue)
                 .collect(Collectors.toList());
     }
 
-    CustomerDTO toCreateDTO(Customer customer);
+    Customer toEntity(CustomerDTO customerDTO);
 
-    Customer toCreateEntity(CreateCustomerRequest request);
-
-    Customer toUpdateEntity(UpdateCustomerRequest request);
+    @Mapping(target = "orders", source = "orders")
+    Customer toEntity(CustomerDTO customerDTO, List<Order> orders);
 }

@@ -1,54 +1,43 @@
 package com.example.controller;
 
-import com.example.dto.dish.category.CreateDishCategoryRequest;
-import com.example.dto.dish.category.DishCategoryDTO;
-import com.example.dto.dish.category.DishCategoryMapper;
-import com.example.dto.dish.category.UpdateDishCategoryRequest;
-import com.example.model.dish.DishCategory;
+import com.example.dto.DishCategoryDTO;
 import com.example.service.DishCategoryService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/dish-category")
 @CrossOrigin(origins = "*")
 public class DishCategoryController {
     private final DishCategoryService dishCategoryService;
-    private final DishCategoryMapper dishCategoryMapper;
 
-    public DishCategoryController(DishCategoryService dishCategoryService, DishCategoryMapper dishCategoryMapper) {
+    public DishCategoryController(DishCategoryService dishCategoryService) {
         this.dishCategoryService = dishCategoryService;
-        this.dishCategoryMapper = dishCategoryMapper;
     }
 
     // 获取所有菜品分类
     @GetMapping
     public ResponseEntity<List<DishCategoryDTO>> getAllDishCategories() {
-        List<DishCategory> categories = dishCategoryService.findAllDishCategory();
-
-        List<DishCategoryDTO> dishCategoryDTOList = categories.stream()
-                .map(dishCategoryMapper::toDTO)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(dishCategoryDTOList);
+        try {
+            List<DishCategoryDTO> responseDTO = dishCategoryService.getAllDishCategory();
+            return ResponseEntity.ok().body(responseDTO);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
     // 添加菜品分类
     @PostMapping
-    public ResponseEntity<DishCategoryDTO> addDishCategory(@Valid @RequestBody CreateDishCategoryRequest category) {
+    public ResponseEntity<DishCategoryDTO> addDishCategory(@Valid @RequestBody DishCategoryDTO requestDTO) {
         try {
-            DishCategory dishCategory = dishCategoryMapper.toEntity(category);
-            DishCategory addedDishCategory = dishCategoryService.addDishCategory(dishCategory);
-            DishCategoryDTO dishCategoryDTO = dishCategoryMapper.toDTO(addedDishCategory);
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(dishCategoryDTO);
+            DishCategoryDTO responseDTO = dishCategoryService.createDishCategory(requestDTO);
+            return ResponseEntity.ok().body(responseDTO);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.internalServerError().build();
         }
     }
 
@@ -56,34 +45,31 @@ public class DishCategoryController {
     // 根据ID获取菜品分类
     @GetMapping("/{id}")
     public ResponseEntity<DishCategoryDTO> getDishCategoryById(@PathVariable Long id) {
-        Optional<DishCategory> category = dishCategoryService.findDishCategoryById(id);
-
-        if (category.isEmpty()) {
+        try {
+            DishCategoryDTO responseDTO = dishCategoryService.getDishCategoryById(id);
+            return ResponseEntity.ok().body(responseDTO);
+        } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
         }
-        DishCategoryDTO dishCategoryDTO = dishCategoryMapper.toDTO(category.get());
-        return ResponseEntity.ok(dishCategoryDTO);
     }
-
 
 
     // 更新菜品分类
     @PutMapping("/{id}")
     public ResponseEntity<DishCategoryDTO> updateDishCategory(
-            @PathVariable long id,
-            @Valid @RequestBody UpdateDishCategoryRequest category) {
+            @PathVariable Long id,
+            @Valid @RequestBody DishCategoryDTO requestDTO) {
         try {
-            Optional<DishCategory> dishCategory = dishCategoryService.findDishCategoryById(id);
-            if (dishCategory.isPresent()) {
-                DishCategory newDishCategory = dishCategoryMapper.toEntity(category);
-                DishCategory updatedDishCategory = dishCategoryService.updateDishCategory(newDishCategory);
-                DishCategoryDTO dishCategoryDTO = dishCategoryMapper.toDTO(updatedDishCategory);
-                return ResponseEntity.ok(dishCategoryDTO);
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-            }
+            DishCategoryDTO responseDTO= dishCategoryService.updateDishCategory(id, requestDTO);
+            return ResponseEntity.ok().body(responseDTO);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.internalServerError().build();
         }
 
     }
@@ -91,10 +77,10 @@ public class DishCategoryController {
     // 删除菜品分类
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDishCategory(@PathVariable long id) {
-       boolean deleted = dishCategoryService.deleteDishCategory(id);
-       return deleted ?
-               ResponseEntity.noContent().build() :
-               ResponseEntity.notFound().build();
+        boolean deleted = dishCategoryService.deleteDishCategory(id);
+        return deleted ?
+                ResponseEntity.noContent().build() :
+                ResponseEntity.notFound().build();
 
     }
 

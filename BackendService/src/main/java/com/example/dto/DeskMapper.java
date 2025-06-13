@@ -1,10 +1,10 @@
-package com.example.dto.desk;
+package com.example.dto;
 
 import com.example.model.desk.Desk;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface DeskMapper {
-    Desk toEntity(DeskRequest deskRequest);
+    Desk toEntity(DeskDTO dto);
     DeskDTO toDTO(Desk desk);
 }

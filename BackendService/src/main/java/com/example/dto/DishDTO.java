@@ -1,12 +1,20 @@
-package com.example.dto.dish;
+package com.example.dto;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Data
-public class CreateDishRequest {
+@NoArgsConstructor
+@AllArgsConstructor
+public class DishDTO {
+    private Long id;
+
     @NotBlank(message = "菜品编码不能为空")
     @Size(max = 20, message = "编码长度不能超过20个字符")
     private String code;
@@ -24,4 +32,5 @@ public class CreateDishRequest {
     @NotNull(message = "分类ID不能为空")
     private Long categoryId;
 
+    private List<Long> hints;
 }

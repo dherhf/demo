@@ -1,16 +1,14 @@
 package com.example.controller;
 
-import com.example.dto.customer.*;
-import com.example.model.customer.Customer;
+import com.example.dto.CustomerDTO;
 import com.example.service.CustomerService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/customers")
@@ -18,53 +16,61 @@ import java.util.stream.Collectors;
 public class CustomerController {
 
     private final CustomerService customerService;
-    private final CustomerMapper customerMapper;
 
-    public CustomerController(CustomerService customerService, CustomerMapper customerMapper) {
+    public CustomerController(CustomerService customerService) {
         this.customerService = customerService;
-        this.customerMapper = customerMapper;
     }
 
     // 获取所有顾客
     @GetMapping
     public ResponseEntity<List<CustomerDTO>> getAllCustomers() {
-        List<Customer> allCustomers = customerService.getAllCustomers();
-        List<CustomerDTO> customerDTO = allCustomers.stream().map(customerMapper::toDto).collect(Collectors.toList());
-        return ResponseEntity.ok(customerDTO);
+        try {
+            List<CustomerDTO> responseDTO = customerService.getAllCustomers();
+            return ResponseEntity.ok(responseDTO);
+        } catch (Exception e) {
+            return  ResponseEntity.internalServerError().build();
+        }
     }
 
     // 创建新顾客
     @PostMapping
-    public ResponseEntity<CustomerDTO> createCustomer(@Valid @RequestBody CreateCustomerRequest customerRequest) {
-        Customer customer = customerMapper.toCreateEntity(customerRequest);
-        customerService.addCustomer(customer);
-        CustomerDTO customerDTO = customerMapper.toDto(customer);
-        return ResponseEntity.status(HttpStatus.CREATED).body(customerDTO);
+    public ResponseEntity<CustomerDTO> createCustomer(@Valid @RequestBody CustomerDTO requestDTO) {
+
+        CustomerDTO responseDTO = customerService.createCustomer(requestDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 
     // 根据ID获取顾客
     @GetMapping("/{id}")
-    public ResponseEntity<CustomerDTO> getCustomerById(@PathVariable int id) {
-        Optional<Customer> customer = customerService.getCustomerById(id);
-        return customer.map(value -> ResponseEntity.ok(customerMapper.toDto(value)))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<CustomerDTO> getCustomerById(@PathVariable Long id) {
+        try {
+            CustomerDTO responseDTO = customerService.getCustomerById(id);
+            return ResponseEntity.ok(responseDTO);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
     // 更新顾客信息
     @PutMapping("/{id}")
     public ResponseEntity<CustomerDTO> updateCustomer(
-            @PathVariable int id,
-            @Valid @RequestBody UpdateCustomerRequest updateRequest) {
-        if (updateRequest.getId() != null && !updateRequest.getId().equals(id)) {
-            return ResponseEntity.badRequest().build();
+            @PathVariable Long id,
+            @Valid @RequestBody CustomerDTO requestDTO) {
+        try {
+            CustomerDTO responseDTO = customerService.updateCustomer(id, requestDTO);
+            return ResponseEntity.ok(responseDTO);
+        } catch (IllegalArgumentException e) {
+            // 参数不合法（如ID不匹配）
+            return ResponseEntity.badRequest().body(null);
+        } catch (EntityNotFoundException e) {
+            // 资源不存在
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            // 其他未预期异常
+            return ResponseEntity.internalServerError().build();
         }
-        Customer newCustomer = customerMapper.toUpdateEntity(updateRequest);
-        Optional<Customer> OldCustomer = customerService.getCustomerById(id);
-        if (OldCustomer.isPresent()) {
-            customerService.updateCustomer(newCustomer);
-            return ResponseEntity.ok(customerMapper.toDto(newCustomer));
-        }
-        return ResponseEntity.notFound().build();
     }
 
     // 删除顾客

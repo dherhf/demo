@@ -1,14 +1,13 @@
 package com.example.service;
 
-import com.example.model.customer.Customer;
+import com.example.dto.CustomerDTO;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface CustomerService {
-    Optional<Customer> getCustomerById(int id);
-    List<Customer> getAllCustomers();
-    Customer addCustomer(Customer customer);
+    CustomerDTO getCustomerById(Long id);
+    List<CustomerDTO> getAllCustomers();
+    CustomerDTO createCustomer(CustomerDTO customer);
     boolean deleteCustomerById(int id);
-    Customer updateCustomer(Customer customer);
+    CustomerDTO updateCustomer(Long id, CustomerDTO customer);
 }

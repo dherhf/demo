@@ -1,4 +1,4 @@
-package com.example.dto.dish.category;
+package com.example.dto;
 
 import com.example.model.dish.Dish;
 import com.example.model.dish.DishCategory;
@@ -13,16 +13,17 @@ import java.util.stream.Collectors;
 public interface DishCategoryMapper {
     @Mapping(target = "dishIds", source = "dishes", qualifiedByName = "mapDishesToIds")
     DishCategoryDTO toDTO(DishCategory dishCategory);
-    DishCategory toEntity(CreateDishCategoryRequest category);
-    DishCategory toEntity(UpdateDishCategoryRequest category);
+
+    DishCategory toEntity(DishCategoryDTO dishCategoryDTO);
 
     @Named("mapDishesToIds")
-    default List<Integer> mapDishesToIds(List<Dish> dishes) {
+    default List<Long> mapDishesToIds(List<Dish> dishes) {
         if (dishes == null) {
             return List.of();
         }
         return dishes.stream()
                 .map(Dish::getId)
+                .map(Integer::longValue)
                 .collect(Collectors.toList());
     }
 }

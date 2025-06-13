@@ -1,42 +1,78 @@
 package com.example.service.impl;
 
+import com.example.dto.DishDTO;
+import com.example.dto.DishMapper;
 import com.example.model.dish.Dish;
+import com.example.repository.DishCategoryRepository;
 import com.example.repository.DishRepository;
 import com.example.service.DishService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class DishServiceImpl implements DishService {
     @Autowired
     private DishRepository dishRepository;
 
-    public Optional<Dish> findDishById(Long id) {
-        return dishRepository.findById(id);
+    @Autowired
+    private DishCategoryRepository dishCategoryRepository;
+
+    @Autowired
+    private DishMapper dishMapper;
+
+
+    public List<DishDTO> getAllDishes() {
+        List<Dish> dishes = dishRepository.findAll();
+        return dishes.stream().map(d -> dishMapper.toDTO(d)).collect(Collectors.toList());
     }
 
-    public  List<Dish> findAllByDishCategoryId(int dishCategoryId) {
-        return  dishRepository.findAllByDishCategoryId(dishCategoryId);
+    public DishDTO getDishById(Long id) {
+        Optional<Dish> dish = dishRepository.findById(id);
+        if (dish.isEmpty()){
+            throw new EntityNotFoundException("not found");
+        }
+        return dishMapper.toDTO(dish.get());
     }
 
-    public Dish addDish(Dish dish) {
-        return dishRepository.save(dish);
+    public DishDTO createDish(DishDTO dishDTO) {
+        dishDTO.setId(null);
+        dishDTO.setHints(null);
+        if (!dishCategoryRepository.existsById(dishDTO.getCategoryId())) {
+            throw new EntityNotFoundException("category not found");
+        }
+        Dish dish = dishRepository.save(dishMapper.toEntity(dishDTO));
+        return dishMapper.toDTO(dish);
     }
 
-    @Override
-    public Dish updateDish(Dish dish) {
-        return dishRepository.save(dish);
+    public DishDTO updateDish(Long id, DishDTO dishDTO) {
+        // 1. 校验URL ID与DTO ID是否一致
+       if (!id.equals(dishDTO.getId())){
+           throw new IllegalArgumentException("bad request");
+       }
+
+        // 2. 检查ID是否存在
+        if (!dishRepository.existsById(id)){
+            throw new EntityNotFoundException("not found");
+        }
+
+        Dish dish = dishRepository.save(dishMapper.toEntity(dishDTO));
+        return dishMapper.toDTO(dish);
     }
 
-    public void deleteDishById(Long id) {
-        dishRepository.deleteById(id);
+    public boolean deleteDishById(Long id) {
+        if (dishRepository.existsById(id)){
+            dishRepository.deleteById(id);
+            return true;
+        }
+        return false;
     }
 
-    @Override
-    public List<Dish> getAllDishes() {
-        return  dishRepository.findAll();
+    public List<DishDTO> findAllByDishCategoryId(int dishCategoryId) {
+        return null;
     }
 }

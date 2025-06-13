@@ -1,8 +1,11 @@
 package com.example.service.impl;
 
+import com.example.dto.DeskDTO;
+import com.example.dto.DeskMapper;
 import com.example.model.desk.Desk;
 import com.example.repository.DeskRepository;
 import com.example.service.DeskService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,30 +17,35 @@ public class DeskServiceImpl implements DeskService {
     @Autowired
     private DeskRepository deskRepository;
 
-    public Optional<Desk> getDeskById(int id) {
-        return deskRepository.findById((long) id);
+    @Autowired
+    private DeskMapper deskMapper;
+
+    public DeskDTO getDeskById(Long id) {
+        Optional<Desk> desk = deskRepository.findById(id);
+        if (desk.isEmpty()){
+            throw new EntityNotFoundException("not found");
+        }
+        return deskMapper.toDTO(desk.get());
     }
 
-    public Optional<Desk> openDesk(int id) {
-        Optional<Desk> Desk = deskRepository.findById((long) id);
-        if (Desk.isPresent()) {
-            Desk oldDesk = Desk.get();
-            oldDesk.setOpen(true);
-            deskRepository.save(oldDesk);
+    public DeskDTO openDesk(Long id) {
+        Optional<Desk> desk = deskRepository.findById(id);
+        if (desk.isEmpty()) {
+            throw new EntityNotFoundException("not found");
         }
-
-        return deskRepository.findById((long) id);
+        desk.get().setOpen(true);
+        Desk save = deskRepository.save(desk.get());
+        return deskMapper.toDTO(save);
     }
 
-    public Optional<Desk> closeDesk(int id) {
-        Optional<Desk> Desk = deskRepository.findById((long) id);
-        if (Desk.isPresent()) {
-            Desk oldDesk = Desk.get();
-            oldDesk.setOpen(false);
-            deskRepository.save(oldDesk);
+    public DeskDTO closeDesk(Long id) {
+        Optional<Desk> desk = deskRepository.findById(id);
+        if (desk.isEmpty()) {
+            throw new EntityNotFoundException("not found");
         }
-
-        return deskRepository.findById((long) id);
+        desk.get().setOpen(false);
+        Desk save = deskRepository.save(desk.get());
+        return deskMapper.toDTO(save);
     }
 
 
