@@ -1,5 +1,10 @@
-import { createApp } from 'vue';
-import App from './App.vue';
+import { createApp } from 'vue'
+import App from './App.vue'
 
-createApp(App)
-  .mount('#app');
+import 'vxe-table/lib/style.css'
+import VXETable from 'vxe-table'
+
+const app = createApp(App)
+app.use(VXETable)
+
+app.mount('#app')
