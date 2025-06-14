@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface EmployeeMapper {
-    @Mapping(target = "ordersIds", source = "orders", qualifiedByName = "mapOrdersToIds")
+    @Mapping(target = "orderIds", source = "orders", qualifiedByName = "mapOrdersToIds")
     EmployeeDTO toDTO(Employee employee);
 
     Employee toEntity(EmployeeDTO employeeDTO);

@@ -1,6 +1,5 @@
 package com.example.controller;
 
-import com.example.dto.CustomerDTO;
 import com.example.dto.EmployeeDTO;
 import com.example.service.EmployeeService;
 import jakarta.persistence.EntityNotFoundException;

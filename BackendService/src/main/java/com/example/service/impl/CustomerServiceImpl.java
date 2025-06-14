@@ -20,7 +20,6 @@ public class CustomerServiceImpl implements CustomerService {
     @Autowired
     private CustomerMapper customerMapper ;
 
-    @Override
     public CustomerDTO getCustomerById(Long id) {
         Optional<Customer> customer = customerRepository.findById(id);
         if (customer.isEmpty()) {
@@ -29,13 +28,11 @@ public class CustomerServiceImpl implements CustomerService {
         return customerMapper.toDto(customer.get());
     }
 
-    @Override
     public List<CustomerDTO> getAllCustomers() {
         List<Customer> CustomerList = customerRepository.findAll();
         return CustomerList.stream().map(customerMapper::toDto).collect(Collectors.toList());
     }
 
-    @Override
     public CustomerDTO createCustomer(CustomerDTO customerDTO) {
         customerDTO.setId(null);
         customerDTO.setOrderIds(null);
@@ -44,7 +41,6 @@ public class CustomerServiceImpl implements CustomerService {
         return customerMapper.toDto(createCustomer);
     }
 
-    @Override
     public CustomerDTO updateCustomer(Long id, CustomerDTO customerDTO) {
         // 1. 校验URL ID与DTO ID是否一致
         if (!id.equals(customerDTO.getId())) {
@@ -62,7 +58,6 @@ public class CustomerServiceImpl implements CustomerService {
         return customerMapper.toDto(updateCustomer);
     }
 
-    @Override
     public boolean deleteCustomerById(int id) {
         if (customerRepository.existsById((long) id)) {
             customerRepository.deleteById((long) id);

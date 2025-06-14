@@ -2,7 +2,6 @@ package com.example.dto;
 
 import com.example.model.dish.Dish;
 import com.example.model.dish.DishCategory;
-import com.example.model.employee.Employee;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;

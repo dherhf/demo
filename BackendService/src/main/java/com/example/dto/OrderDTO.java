@@ -1,6 +1,5 @@
 package com.example.dto;
 
-import com.example.model.customer.Customer;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderDTO {
-    private int id;
+    private Long id;
     @NotBlank
     private LocalDate createDate;
     @NotBlank
