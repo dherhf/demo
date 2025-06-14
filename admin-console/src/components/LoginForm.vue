@@ -11,7 +11,7 @@
         <input type="password" id="password" v-model="password" required />
       </div>
       <button type="submit" :disabled="isLoading">
-        {{ isLoading ? '登录中...' : '登录' }}
+        {{ isLoading ? "登录中..." : "登录" }}
       </button>
     </form>
     <p v-if="errorMessage">{{ errorMessage }}</p>
@@ -20,54 +20,57 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import axios from 'axios';
+import { ref } from "vue";
+import axios from "axios";
 
-const username = ref('');
-const password = ref('');
-const errorMessage = ref('');
-const successMessage = ref('');
+const username = ref("");
+const password = ref("");
+const errorMessage = ref("");
+const successMessage = ref("");
 const isLoading = ref(false);
 
 const handleSubmit = async () => {
   if (!username.value || !password.value) {
-    errorMessage.value = '请填写所有字段';
+    errorMessage.value = "请填写所有字段";
     return;
   }
 
   try {
     isLoading.value = true;
-    errorMessage.value = '';
-    successMessage.value = '';
+    errorMessage.value = "";
+    successMessage.value = "";
 
-    const response = await axios.post('http://localhost:8080/api/users/login', {
-      username: username.value,
-      password: password.value
-    }, {
-      headers: {
-        'Content-Type': 'application/json'
+    const response = await axios.post(
+      "http://localhost:8080/api/users/login",
+      {
+        username: username.value,
+        password: password.value,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
       }
-    });
+    );
 
     // 处理成功响应
-    successMessage.value = '登录成功';
-    console.log('登录响应:', response.data);
+    successMessage.value = "登录成功";
+    console.log("登录响应:", response.data);
 
-    alert("登录成功")
-
+    alert("登录成功");
   } catch (error) {
     // 处理错误
     if (error.response) {
       // 服务器返回了错误状态码
-      errorMessage.value = error.response.data.message || '登录失败';
+      errorMessage.value = error.response.data.message || "登录失败";
     } else if (error.request) {
       // 请求已发出但没有收到响应
-      errorMessage.value = '网络错误，请检查连接';
+      errorMessage.value = "网络错误，请检查连接";
     } else {
       // 其他错误
-      errorMessage.value = '发生未知错误';
+      errorMessage.value = "发生未知错误";
     }
-    console.error('登录错误:', error);
+    console.error("登录错误:", error);
   } finally {
     isLoading.value = false;
   }
