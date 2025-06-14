@@ -47,6 +47,7 @@
       show-overflow
       :loading="loading"
       :edit-config="editConfig"
+      @edit-closed="handleEditClosed"
     >
       <vxe-column field="id" title="ID" width="10%"></vxe-column>
 
@@ -87,6 +88,7 @@
       ></vxe-column>
     </vxe-table>
   </div>
+
   <!-- 底部操作区域 -->
   <div>
     <div
@@ -94,11 +96,12 @@
       class="mt-4 flex justify-between items-center text-sm text-gray-500"
     >
       <span>共 {{ customers.length }} 条记录</span>
-      <div class="flex items-center space-x-2">
+      <div class="flex gap-2">
+        <!-- 取消按钮 -->
         <button
-          v-if="isEditing"
-          @click="saveEdit"
-          class="px-4 py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white transition-colors"
+          v-if="isAdding"
+          @click="cancelAdd"
+          class="px-4 py-2 rounded-lg bg-gray-500 hover:bg-gray-600 text-white transition-colors flex items-center"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -106,7 +109,30 @@
             viewBox="0 0 24 24"
             stroke-width="1.5"
             stroke="currentColor"
-            class="w-6 h-6"
+            class="w-4 h-4 mr-1"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+          取消
+        </button>
+
+        <!-- 保存编辑按钮 -->
+        <button
+          v-if="isEditing"
+          @click="saveEdit"
+          class="px-4 py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white transition-colors flex items-center"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="w-4 h-4 mr-1"
           >
             <path
               stroke-linecap="round"
@@ -114,7 +140,10 @@
               d="m4.5 12.75 6 6 9-13.5"
             />
           </svg>
+          保存
         </button>
+
+        <!-- 添加/保存按钮 -->
         <button
           v-if="!isEditing"
           @click="handleAddOrSave"
@@ -131,7 +160,7 @@
             viewBox="0 0 24 24"
             stroke-width="1.5"
             stroke="currentColor"
-            class="w-6 h-6"
+            class="w-4 h-4 mr-1"
           >
             <path
               v-if="!isAdding"
@@ -153,7 +182,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, reactive, nextTick } from "vue";
+import { ref, onMounted, reactive, computed } from "vue";
 import axios from "axios";
 
 const tableRef = ref(null);
@@ -161,8 +190,9 @@ const customers = ref([]);
 const loading = ref(false);
 const error = ref(null);
 const sortConfig = ref({});
-const isAdding = ref(false); // 添加状态标记
-const isEditing = ref(false); // 编辑状态标记
+const isAdding = ref(false);
+const isEditing = ref(false);
+const newCustomer = ref(null);
 
 const editConfig = reactive({
   trigger: "click",
@@ -170,10 +200,163 @@ const editConfig = reactive({
 });
 
 const formatPhone = ({ cellValue }) => {
-  if (!cellValue) return "未填写";
+  // 如果单元格值为空，直接返回
+  if (!cellValue) return cellValue;
+  // 检查是否为有效的11位手机号
   return /^\d{11}$/.test(cellValue)
     ? cellValue.replace(/(\d{3})(\d{4})(\d{4})/, "$1 $2 $3")
     : cellValue;
+};
+
+// 处理添加或保存操作
+const handleAddOrSave = async () => {
+  if (isAdding.value) {
+    // 当前是添加状态，执行保存新增记录
+    await saveNewCustomer();
+  } else {
+    // 当前不是添加状态，执行添加新行
+    addNewRow();
+  }
+};
+
+// 添加新行
+const addNewRow = () => {
+  const newRow = {
+    name: "",
+    address: "",
+    phone: "",
+    cardID: "",
+    orderIds: [],
+    _isNew: true, // 标记这是新添加的行
+  };
+
+  customers.value.push(newRow); // 在表格底部添加新行
+  newCustomer.value = newRow;
+  isAdding.value = true;
+
+  // 等待DOM更新后，自动激活第一行的第一个可编辑单元格
+  setTimeout(() => {
+    if (tableRef.value) {
+      tableRef.value.setActiveCell(newRow, "name");
+    }
+  }, 100);
+};
+
+// 保存新客户
+const saveNewCustomer = async () => {
+  if (!newCustomer.value) return;
+
+  try {
+    loading.value = true;
+    // 准备发送到服务器的数据（移除临时属性）
+    const customerData = {
+      name: newCustomer.value.name.trim(),
+      address: newCustomer.value.address?.trim() || "",
+      phone: newCustomer.value.phone?.trim() || "",
+      cardID: newCustomer.value.cardID?.trim() || "",
+      orderIds: [],
+    };
+
+    // 发送到服务器
+    const response = await axios.post(
+      "http://localhost:8080/api/customers",
+      customerData,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    // 更新本地数据：用服务器返回的数据替换临时数据
+    const index = customers.value.findIndex(
+      (c) => c.id === newCustomer.value.id
+    );
+    if (index !== -1) {
+      customers.value[index] = {
+        ...response.data,
+        orderIds: response.data.orderIds || 0,
+      };
+    }
+
+    // 重置状态
+    isAdding.value = false;
+    newCustomer.value = null;
+  } catch (err) {
+    alert(err.response?.data?.message || "保存失败，请重试");
+  } finally {
+    loading.value = false;
+  }
+};
+
+// 取消添加
+const cancelAdd = () => {
+  if (newCustomer.value) {
+    // 从列表中移除新添加的行
+    const index = customers.value.findIndex(
+      (c) => c.id === newCustomer.value.id
+    );
+    if (index !== -1) {
+      customers.value.splice(index, 1);
+    }
+  }
+
+  isAdding.value = false;
+  newCustomer.value = null;
+};
+
+// 处理编辑完成事件
+const handleEditClosed = ({ row, column }) => {
+  if (row._isNew && newCustomer.value && row.id === newCustomer.value.id) {
+    // 更新新客户的数据
+    newCustomer.value = { ...row };
+  }
+};
+
+// 保存编辑
+const saveEdit = async () => {
+  try {
+    loading.value = true;
+
+    // 获取所有被编辑的记录
+    const editedRecords = tableRef.value.getEditableRecords();
+
+    if (editedRecords.length === 0) {
+      console.log("没有需要保存的更改");
+      return;
+    }
+
+    // 这里可以批量保存或逐个保存
+    for (const record of editedRecords) {
+      if (!record._isNew) {
+        // 只处理现有记录的编辑
+        await axios.put(
+          `http://localhost:8080/api/customers/${record.id}`,
+          {
+            name: record.name?.trim(),
+            address: record.address?.trim() || "",
+            phone: record.phone?.trim() || "",
+            cardID: record.cardID?.trim() || "",
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+      }
+    }
+
+    console.log("编辑保存成功");
+
+    // 重新获取数据以确保同步
+    await fetchData();
+  } catch (err) {
+    console.error("保存编辑失败:", err);
+    alert(err.response?.data?.message || "保存失败，请重试");
+  } finally {
+    loading.value = false;
+  }
 };
 
 const fetchData = async () => {
@@ -189,58 +372,18 @@ const fetchData = async () => {
     });
     customers.value = response.data || [];
     tableRef.value?.clearCheckbox?.();
+
+    // 重置添加状态
+    isAdding.value = false;
+    newCustomer.value = null;
   } catch (err) {
     console.error("获取顾客数据失败:", err);
     error.value =
       err.response?.data?.message ||
-      "无法连接到服务器,请检查API地址或服务器状态";
+      "无法连接到服务器，请检查API地址或服务器状态";
   } finally {
     loading.value = false;
   }
-};
-
-// 添加操作
-const handleAddOrSave = () => {
-  if (isAdding.value) {
-    // 取消添加模式
-    isAdding.value = false;
-    return;
-  }
-
-  // 进入添加模式
-  isAdding.value = true;
-  isEditing.value = true;
-
-  // 生成新顾客数据
-  const newCustomer = {
-    id: null,
-    name: "",
-    address: "",
-    phone: "",
-    cardID: "",
-    orderIds: 0,
-  };
-
-  // 添加到数据列表
-  customers.value.unshift(newCustomer);
-
-  // 延迟更新视图，确保表格正确渲染
-  nextTick(() => {
-    tableRef.value?.refresh();
-    // 定位到新添加的行
-    tableRef.value?.scrollToRow(0);
-    // 激活第一个可编辑单元格
-    tableRef.value?.editCell(0, "name");
-  });
-};
-
-// 保存编辑
-const saveEdit = () => {
-  // 这里可以添加保存逻辑
-  console.log("保存编辑的数据:", customers.value);
-  isEditing.value = false;
-  isAdding.value = false;
-  // 可以在此处调用API保存数据
 };
 
 onMounted(fetchData);
