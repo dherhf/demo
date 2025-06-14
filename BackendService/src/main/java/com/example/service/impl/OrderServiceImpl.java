@@ -37,7 +37,6 @@ public class OrderServiceImpl implements OrderService {
 
     public OrderDTO createOrder(OrderDTO orderDTO) {
         orderDTO.setId(null);
-        orderDTO.setCustomerId(null);
         Order order = orderMapper.toEntity(orderDTO);
         order = orderRepository.save(order);
         return orderMapper.toDTO(order);

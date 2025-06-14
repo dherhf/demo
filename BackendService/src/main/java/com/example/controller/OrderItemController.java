@@ -1,7 +1,7 @@
 package com.example.controller;
 
-import com.example.dto.EmployeeDTO;
-import com.example.service.EmployeeService;
+import com.example.dto.OrderItemDTO;
+import com.example.service.OrderItemService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -10,19 +10,19 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/employee")
+@RequestMapping("api/order-item")
 @CrossOrigin(origins = "*")
-public class EmployeeController {
-    private final EmployeeService employeeService;
+public class OrderItemController {
+    private final OrderItemService orderItemService;
 
-    public EmployeeController(EmployeeService employeeService) {
-        this.employeeService = employeeService;
+    public OrderItemController(OrderItemService orderItemService) {
+        this.orderItemService = orderItemService;
     }
 
     @GetMapping
-    public ResponseEntity<List<EmployeeDTO>> getAllEmployees() {
+    public ResponseEntity<List<OrderItemDTO>> getAllOrderItems() {
         try {
-            List<EmployeeDTO> responseDTO =  employeeService.getAllEmployees();
+            List<OrderItemDTO> responseDTO = orderItemService.getAllOrderItems();
             return ResponseEntity.ok(responseDTO);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
@@ -30,9 +30,9 @@ public class EmployeeController {
     }
 
     @PostMapping
-    public ResponseEntity<EmployeeDTO> createEmployee(@Valid @RequestBody EmployeeDTO requestDTO) {
+    public ResponseEntity<OrderItemDTO> createOrderItem(@Valid @RequestBody OrderItemDTO requestDTO) {
         try {
-            EmployeeDTO responseDTO = employeeService.createEmployee(requestDTO);
+            OrderItemDTO responseDTO = orderItemService.createOrderItem(requestDTO);
             return ResponseEntity.ok(responseDTO);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
@@ -40,9 +40,9 @@ public class EmployeeController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<EmployeeDTO> getEmployeeById(@PathVariable Long id) {
+    public ResponseEntity<OrderItemDTO> getOrderItemById(@PathVariable Long id) {
         try {
-            EmployeeDTO responseDTO = employeeService.getEmployeeById(id);
+            OrderItemDTO responseDTO = orderItemService.getOrderItemById(id);
             return ResponseEntity.ok(responseDTO);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
@@ -52,9 +52,9 @@ public class EmployeeController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<EmployeeDTO> updateEmployee(@PathVariable Long id, @Valid @RequestBody EmployeeDTO requestDTO) {
+    public ResponseEntity<OrderItemDTO> updateOrderItem(@PathVariable Long id, @Valid @RequestBody OrderItemDTO requestDTO) {
         try {
-            EmployeeDTO responseDTO = employeeService.updateEmployee(id, requestDTO);
+            OrderItemDTO responseDTO = orderItemService.updateOrderItem(id, requestDTO);
             return ResponseEntity.ok(responseDTO);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
@@ -66,11 +66,8 @@ public class EmployeeController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteEmployee(@PathVariable Long id) {
-        boolean deleted = employeeService.deleteEmployee(id);
-        return deleted ?
-                ResponseEntity.noContent().build() :
-                ResponseEntity.internalServerError().build();
+    public ResponseEntity<Void> deleteOrderItem(@PathVariable Long id) {
+        boolean deleted = orderItemService.deleteOrderItem(id);
+        return deleted ? ResponseEntity.noContent().build() : ResponseEntity.internalServerError().build();
     }
-
 }
