@@ -16,6 +16,7 @@ import java.util.Optional;
 
 @Service
 public class DishHintServiceImpl implements DishHintService {
+
     @Autowired
     private DishHintRepository dishHintRepository;
 
@@ -26,8 +27,8 @@ public class DishHintServiceImpl implements DishHintService {
     private DishHintMapper dishHintMapper;
 
     public DishHintDTO getDishHintById(Long id) {
-        Optional<DishHint>  dishHint = dishHintRepository.findById(id);
-        if (dishHint.isEmpty()){
+        Optional<DishHint> dishHint = dishHintRepository.findById(id);
+        if (dishHint.isEmpty()) {
             throw new EntityNotFoundException("not found");
         }
         return dishHintMapper.toDTO(dishHint.get());
@@ -35,7 +36,7 @@ public class DishHintServiceImpl implements DishHintService {
 
     public DishHintDTO createDishHint(DishHintDTO dishHintDTO) {
         dishHintDTO.setId(null);
-        if (dishRepository.existsById(dishHintDTO.getDishId())){
+        if (dishRepository.existsById(dishHintDTO.getDishId())) {
             throw new EntityNotFoundException("dish not found");
         }
         DishHint dishHint = dishHintMapper.toEntity(dishHintDTO);
@@ -45,11 +46,11 @@ public class DishHintServiceImpl implements DishHintService {
 
     public DishHintDTO updateDishHint(Long id, DishHintDTO dishHintDTO) {
         if (!id.equals(dishHintDTO.getId())) {
-            throw  new IllegalArgumentException("bad request");
+            throw new IllegalArgumentException("bad request");
         }
 
-        if (!dishHintRepository.existsById(id)){
-            throw  new EntityNotFoundException("not found");
+        if (!dishHintRepository.existsById(id)) {
+            throw new EntityNotFoundException("not found");
         }
 
         dishHintDTO.setId(id);
@@ -58,7 +59,7 @@ public class DishHintServiceImpl implements DishHintService {
     }
 
     public boolean deleteDishHint(Long id) {
-        if (dishHintRepository.existsById(id)){
+        if (dishHintRepository.existsById(id)) {
             dishHintRepository.deleteById(id);
             return true;
         }

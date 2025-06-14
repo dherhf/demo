@@ -22,7 +22,7 @@ public class DeskServiceImpl implements DeskService {
 
     public DeskDTO getDeskById(Long id) {
         Optional<Desk> desk = deskRepository.findById(id);
-        if (desk.isEmpty()){
+        if (desk.isEmpty()) {
             throw new EntityNotFoundException("not found");
         }
         return deskMapper.toDTO(desk.get());

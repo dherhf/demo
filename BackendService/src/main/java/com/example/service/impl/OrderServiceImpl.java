@@ -29,10 +29,10 @@ public class OrderServiceImpl implements OrderService {
 
     public OrderDTO getOrderById(Long id) {
         Optional<Order> order = orderRepository.findById(id);
-        if(order.isEmpty()){
+        if (order.isEmpty()) {
             throw new EntityNotFoundException("not found");
         }
-       return  orderMapper.toDTO(order.get());
+        return orderMapper.toDTO(order.get());
     }
 
     public OrderDTO createOrder(OrderDTO orderDTO) {
@@ -46,7 +46,7 @@ public class OrderServiceImpl implements OrderService {
         if (!id.equals(orderDTO.getId())) {
             throw new IllegalArgumentException("bad request");
         }
-        if (!orderRepository.existsById(id)){
+        if (!orderRepository.existsById(id)) {
             throw new EntityNotFoundException("not found");
         }
         Order order = orderMapper.toEntity(orderDTO);

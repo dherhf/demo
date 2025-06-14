@@ -28,7 +28,7 @@ public class CustomerController {
             List<CustomerDTO> responseDTO = customerService.getAllCustomers();
             return ResponseEntity.ok(responseDTO);
         } catch (Exception e) {
-            return  ResponseEntity.internalServerError().build();
+            return ResponseEntity.internalServerError().build();
         }
     }
 

@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class DishServiceImpl implements DishService {
+
     @Autowired
     private DishRepository dishRepository;
 
@@ -33,7 +34,7 @@ public class DishServiceImpl implements DishService {
 
     public DishDTO getDishById(Long id) {
         Optional<Dish> dish = dishRepository.findById(id);
-        if (dish.isEmpty()){
+        if (dish.isEmpty()) {
             throw new EntityNotFoundException("not found");
         }
         return dishMapper.toDTO(dish.get());
@@ -51,12 +52,12 @@ public class DishServiceImpl implements DishService {
 
     public DishDTO updateDish(Long id, DishDTO dishDTO) {
         // 1. 校验URL ID与DTO ID是否一致
-       if (!id.equals(dishDTO.getId())){
-           throw new IllegalArgumentException("bad request");
-       }
+        if (!id.equals(dishDTO.getId())) {
+            throw new IllegalArgumentException("bad request");
+        }
 
         // 2. 检查ID是否存在
-        if (!dishRepository.existsById(id)){
+        if (!dishRepository.existsById(id)) {
             throw new EntityNotFoundException("not found");
         }
 
@@ -65,7 +66,7 @@ public class DishServiceImpl implements DishService {
     }
 
     public boolean deleteDishById(Long id) {
-        if (dishRepository.existsById(id)){
+        if (dishRepository.existsById(id)) {
             dishRepository.deleteById(id);
             return true;
         }

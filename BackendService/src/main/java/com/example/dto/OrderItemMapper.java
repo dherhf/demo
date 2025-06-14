@@ -11,5 +11,4 @@ public interface OrderItemMapper {
     OrderItemDTO toDTO(OrderItem orderItem);
 
     OrderItem toEntity(OrderItemDTO orderItemDTO);
-
 }

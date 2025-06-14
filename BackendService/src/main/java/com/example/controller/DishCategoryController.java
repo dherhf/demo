@@ -62,7 +62,7 @@ public class DishCategoryController {
             @PathVariable Long id,
             @Valid @RequestBody DishCategoryDTO requestDTO) {
         try {
-            DishCategoryDTO responseDTO= dishCategoryService.updateDishCategory(id, requestDTO);
+            DishCategoryDTO responseDTO = dishCategoryService.updateDishCategory(id, requestDTO);
             return ResponseEntity.ok().body(responseDTO);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();

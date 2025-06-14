@@ -44,7 +44,7 @@ public class DeskController {
     }
 
     @PostMapping("/{id}/close")
-    public ResponseEntity<DeskDTO> closeDesk(@PathVariable Long id){
+    public ResponseEntity<DeskDTO> closeDesk(@PathVariable Long id) {
         try {
             DeskDTO responseDTO = deskService.closeDesk(id);
             return ResponseEntity.ok(responseDTO);

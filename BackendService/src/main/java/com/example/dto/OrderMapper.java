@@ -17,6 +17,7 @@ public interface OrderMapper {
     @Mapping(target = "employeeId", source = "employee.id")
     @Mapping(target = "orderItemIds", source = "orderItems", qualifiedByName = "mapOrderItemsToIds")
     OrderDTO toDTO(Order order);
+
     Order toEntity(OrderDTO orderDTO);
 
     @Named("mapOrderItemsToIds")

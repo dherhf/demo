@@ -3,6 +3,7 @@ package com.example.model.user;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.springframework.util.DigestUtils;
+
 import java.security.SecureRandom;
 import java.util.Base64;
 

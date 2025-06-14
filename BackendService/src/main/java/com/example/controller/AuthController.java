@@ -24,22 +24,19 @@ public class AuthController {
 
     /**
      * 用户认证
+     *
      * @param loginRequest 登录请求对象，包含用户名和密码
      * @return 认证结果
      */
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> authenticate(@Valid @RequestBody LoginRequest loginRequest) {
         // 参数验证
-        if (loginRequest.getUsername() == null || loginRequest.getUsername().trim().isEmpty() ||
-                loginRequest.getPassword() == null || loginRequest.getPassword().trim().isEmpty()) {
+        if (loginRequest.getUsername() == null || loginRequest.getUsername().trim().isEmpty() || loginRequest.getPassword() == null || loginRequest.getPassword().trim().isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
 
         // 调用Service进行用户认证
-        Optional<User> userOptional = userService.authenticateUser(
-                loginRequest.getUsername().trim(),
-                loginRequest.getPassword()
-        );
+        Optional<User> userOptional = userService.authenticateUser(loginRequest.getUsername().trim(), loginRequest.getPassword());
 
         if (userOptional.isPresent()) {
             User user = userOptional.get();

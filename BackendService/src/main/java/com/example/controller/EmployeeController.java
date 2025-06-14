@@ -22,7 +22,7 @@ public class EmployeeController {
     @GetMapping
     public ResponseEntity<List<EmployeeDTO>> getAllEmployees() {
         try {
-            List<EmployeeDTO> responseDTO =  employeeService.getAllEmployees();
+            List<EmployeeDTO> responseDTO = employeeService.getAllEmployees();
             return ResponseEntity.ok(responseDTO);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
