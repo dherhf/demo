@@ -303,7 +303,8 @@ const deleteDesk = (id) => {
 }
 
 // 确认删除
-const confirmDelete = () => {
+const confirmDelete = async () => {
+  await axios.delete(`http://localhost:8080/api/desk/${currentDeskId.value}`)
   desks.value = desks.value.filter(t => t.id !== currentDeskId.value)
   deleteModalVisible.value = false
   currentDeskId.value = null

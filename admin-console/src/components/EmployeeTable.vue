@@ -277,7 +277,8 @@ const deleteEmployee = (id) => {
 }
 
 // 确认删除
-const confirmDelete = () => {
+const confirmDelete = async () => {
+  await axios.delete(`http://localhost:8080/api/employee/${currentEmployeeId.value}`)
   employees.value = employees.value.filter(e => e.id !== currentEmployeeId.value)
   deleteModalVisible.value = false
   currentEmployeeId.value = null
