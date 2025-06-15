@@ -64,6 +64,7 @@
             field="cardID"
             title="会员卡号"
             width="20%"
+            :formatter="formatCardId"
             :edit-render="{ name: 'input' }"
         ></vxe-column>
 
@@ -72,6 +73,7 @@
             title="订单数"
             width="5%"
             align="center"
+            :formatter="formatOrderCount"
         ></vxe-column>
 
         <!-- 操作列 -->
@@ -171,6 +173,14 @@ const formatPhone = ({ cellValue }) => {
     ? cellValue.replace(/(\d{3})(\d{4})(\d{4})/, "$1 $2 $3")
     : cellValue;
 };
+
+const formatOrderCount = ({ cellValue }) => {
+  return cellValue ? cellValue.length : 0;
+}
+
+const formatCardId = ({ cellValue }) => {
+  return cellValue ? cellValue : '非会员';
+}
 
 // 添加新行
 const addNewRow = () => {
