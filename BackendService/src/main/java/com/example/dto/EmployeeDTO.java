@@ -1,6 +1,7 @@
 package com.example.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,8 +14,8 @@ import java.util.List;
 @AllArgsConstructor
 public class EmployeeDTO {
     private Long id;
-    @NotBlank
-    private int age;
+    @NotNull
+    private Long age;
     @NotBlank
     private String name;
     @NotBlank

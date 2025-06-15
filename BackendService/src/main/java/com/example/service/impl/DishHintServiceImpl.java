@@ -3,6 +3,7 @@ package com.example.service.impl;
 
 import com.example.dto.DishHintDTO;
 import com.example.dto.DishHintMapper;
+import com.example.model.dish.Dish;
 import com.example.model.dish.DishHint;
 import com.example.repository.DishHintRepository;
 import com.example.repository.DishRepository;
@@ -36,12 +37,7 @@ public class DishHintServiceImpl implements DishHintService {
 
     public DishHintDTO createDishHint(DishHintDTO dishHintDTO) {
         dishHintDTO.setId(null);
-        if (dishRepository.existsById(dishHintDTO.getDishId())) {
-            throw new EntityNotFoundException("dish not found");
-        }
-        DishHint dishHint = dishHintMapper.toEntity(dishHintDTO);
-        DishHint save = dishHintRepository.save(dishHint);
-        return dishHintMapper.toDTO(save);
+        return getDishHintDTO(dishHintDTO);
     }
 
     public DishHintDTO updateDishHint(Long id, DishHintDTO dishHintDTO) {
@@ -49,13 +45,7 @@ public class DishHintServiceImpl implements DishHintService {
             throw new IllegalArgumentException("bad request");
         }
 
-        if (!dishHintRepository.existsById(id)) {
-            throw new EntityNotFoundException("not found");
-        }
-
-        dishHintDTO.setId(id);
-        DishHint save = dishHintRepository.save(dishHintMapper.toEntity(dishHintDTO));
-        return dishHintMapper.toDTO(save);
+        return getDishHintDTO(dishHintDTO);
     }
 
     public boolean deleteDishHint(Long id) {
@@ -64,5 +54,16 @@ public class DishHintServiceImpl implements DishHintService {
             return true;
         }
         return false;
+    }
+
+    private DishHintDTO getDishHintDTO(DishHintDTO dishHintDTO) {
+        Optional<Dish> dish = dishRepository.findById(dishHintDTO.getDishId());
+        if (dish.isEmpty()) {
+            throw new EntityNotFoundException("not found");
+        }
+        DishHint dishHint = dishHintMapper.toEntity(dishHintDTO);
+        dishHint.setDish(dish.get());
+        DishHint save = dishHintRepository.save(dishHint);
+        return dishHintMapper.toDTO(save);
     }
 }

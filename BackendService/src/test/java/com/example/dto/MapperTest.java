@@ -14,8 +14,13 @@ import java.util.List;
 class MapperTest {
     @Autowired
     CustomerMapper customerMapper;
+
     @Autowired
     DishCategoryMapper dishCategoryMapper;
+
+    @Autowired
+    DishMapper dishMapper;
+
     @Test
     void toDTO() {
         DishCategory dishCategory = new DishCategory();
@@ -34,22 +39,10 @@ class MapperTest {
     }
     @Test
     void toEntity() {
-        DishCategory dishCategory = new DishCategory();
-        dishCategory.setId(1);
-        dishCategory.setDescription("dish");
-        dishCategory.setTags("tags");
-        Dish  dish = new Dish();
-        dish.setId(1);
-        dish.setDishCategory(dishCategory);
-        dish.setName("dish");
-        List<Dish> dishes = new ArrayList<>();
-        dishes.add(dish);
-        dishCategory.setDishes(dishes);
-        DishCategoryDTO dishCategoryDTO = dishCategoryMapper.toDTO(dishCategory);
-        DishCategory newDishCategory = dishCategoryMapper.toEntity(dishCategoryDTO, dishes);
-        System.out.println(newDishCategory.getDishes());
-
-
+        DishDTO dishDTO = new DishDTO();
+        dishDTO.setCategoryId(1L);
+        dishDTO.setName("TEST");
+        System.out.println(dishMapper.toEntity(dishDTO).getDishCategory());
     }
 
 }

@@ -1,12 +1,12 @@
 package com.example.service;
 
-import com.example.repository.CustomerRepository;
-import com.example.repository.DishCategoryRepository;
-import com.example.repository.DishRepository;
+import com.example.model.user.User;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.junit.jupiter.api.Test;
+
+import java.util.Optional;
 
 @SpringBootTest
 class ServiceTest {
@@ -14,17 +14,19 @@ class ServiceTest {
     DishCategoryService dishCategoryService;
 
     @Autowired
-    DishCategoryRepository dishCategoryRepository;
+    DishService dishService;
 
     @Autowired
-    CustomerRepository customerRepository;
-
-    @Autowired
-    DishRepository dishRepository;
+    UserService userService;
 
     @Transactional
     @Test
     void contextLoads() {
-        System.out.println(dishRepository.findById(1L));
+        Optional<User> user = userService.authenticateUser("admin", "www.2005");
+        if(user.isPresent()) {
+            System.out.println(user.get().getUsername());
+        }
+
+
     }
 }

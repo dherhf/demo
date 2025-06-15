@@ -5,7 +5,6 @@ import com.example.repository.UserRepository;
 import com.example.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
 
 import java.util.Optional;
@@ -15,7 +14,6 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
 
-    @Transactional
     public User registerUser(String username, String password) {
         // 参数验证
         if (username == null || username.trim().isEmpty()) {
@@ -56,4 +54,5 @@ public class UserServiceImpl implements UserService {
         byte[] hashBytes = DigestUtils.md5Digest(combined.getBytes());
         return DigestUtils.md5DigestAsHex(hashBytes);
     }
+
 }

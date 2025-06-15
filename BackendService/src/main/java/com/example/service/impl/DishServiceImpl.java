@@ -3,6 +3,7 @@ package com.example.service.impl;
 import com.example.dto.DishDTO;
 import com.example.dto.DishMapper;
 import com.example.model.dish.Dish;
+import com.example.model.dish.DishCategory;
 import com.example.repository.DishCategoryRepository;
 import com.example.repository.DishRepository;
 import com.example.service.DishService;
@@ -43,26 +44,16 @@ public class DishServiceImpl implements DishService {
     public DishDTO createDish(DishDTO dishDTO) {
         dishDTO.setId(null);
         dishDTO.setHints(null);
-        if (!dishCategoryRepository.existsById(dishDTO.getCategoryId())) {
-            throw new EntityNotFoundException("category not found");
-        }
-        Dish dish = dishRepository.save(dishMapper.toEntity(dishDTO));
-        return dishMapper.toDTO(dish);
+        return getDishDTO(dishDTO);
     }
 
     public DishDTO updateDish(Long id, DishDTO dishDTO) {
-        // 1. 校验URL ID与DTO ID是否一致
         if (!id.equals(dishDTO.getId())) {
             throw new IllegalArgumentException("bad request");
         }
 
-        // 2. 检查ID是否存在
-        if (!dishRepository.existsById(id)) {
-            throw new EntityNotFoundException("not found");
-        }
+        return getDishDTO(dishDTO);
 
-        Dish dish = dishRepository.save(dishMapper.toEntity(dishDTO));
-        return dishMapper.toDTO(dish);
     }
 
     public boolean deleteDishById(Long id) {
@@ -75,5 +66,17 @@ public class DishServiceImpl implements DishService {
 
     public List<DishDTO> findAllByDishCategoryId(int dishCategoryId) {
         return null;
+    }
+
+    private DishDTO getDishDTO(DishDTO dishDTO) {
+        Optional<DishCategory> dishCategory = dishCategoryRepository.findById(dishDTO.getCategoryId());
+        if (dishCategory.isEmpty()) {
+            throw new EntityNotFoundException("category not found");
+        }
+        Dish dish = dishMapper.toEntity(dishDTO);
+        dish.setDishCategory(dishCategory.get());
+        Dish save = dishRepository.save(dish);
+
+        return dishMapper.toDTO(save);
     }
 }

@@ -1,6 +1,6 @@
 package com.example.dto;
 
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,10 +10,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class OrderItemDTO {
     private Long id;
-    @NotBlank
+    @NotNull
     private int quantity;
-    @NotBlank
+    @NotNull
     private Long dishId;
-    @NotBlank
+    @NotNull
     private Long orderId;
 }

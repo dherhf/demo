@@ -31,25 +31,29 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> authenticate(@Valid @RequestBody LoginRequest loginRequest) {
         // 参数验证
-        if (loginRequest.getUsername() == null || loginRequest.getUsername().trim().isEmpty() || loginRequest.getPassword() == null || loginRequest.getPassword().trim().isEmpty()) {
-            return ResponseEntity.badRequest().build();
-        }
+        try {
+            if (loginRequest.getUsername() == null || loginRequest.getUsername().trim().isEmpty() || loginRequest.getPassword() == null || loginRequest.getPassword().trim().isEmpty()) {
+                return ResponseEntity.badRequest().build();
+            }
 
-        // 调用Service进行用户认证
-        Optional<User> userOptional = userService.authenticateUser(loginRequest.getUsername().trim(), loginRequest.getPassword());
+            // 调用Service进行用户认证
+            Optional<User> userOptional = userService.authenticateUser(loginRequest.getUsername().trim(), loginRequest.getPassword());
 
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
+            if (userOptional.isPresent()) {
+                User user = userOptional.get();
 
-            // 创建认证成功响应
-            LoginResponse loginResponse = new LoginResponse();
-            loginResponse.setUserId(user.getId());
-            loginResponse.setUsername(user.getUsername());
+                // 创建认证成功响应
+                LoginResponse loginResponse = new LoginResponse();
+                loginResponse.setUserId(user.getId());
+                loginResponse.setUsername(user.getUsername());
 
-            return ResponseEntity.ok(loginResponse);
-        } else {
-            // 认证失败
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+                return ResponseEntity.ok(loginResponse);
+            } else {
+                // 认证失败
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
         }
     }
 }

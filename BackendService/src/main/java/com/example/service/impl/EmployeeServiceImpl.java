@@ -50,6 +50,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             throw new EntityNotFoundException("not found");
         }
         Employee save = employeeRepository.save(employeeMapper.toEntity(employeeDTO));
+        System.out.println(employeeMapper.toDTO(save));
         return employeeMapper.toDTO(save);
     }
 

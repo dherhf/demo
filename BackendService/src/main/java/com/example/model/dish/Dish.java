@@ -29,6 +29,8 @@ public class Dish {
 
     private String name;
 
+    private double price;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dish_category_id")
     @JsonBackReference

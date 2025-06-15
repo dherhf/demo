@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 public class DeskDTO {
     @NotBlank
-    private int id;
+    private Long id;
     @NotBlank
     private String code;
     @NotBlank

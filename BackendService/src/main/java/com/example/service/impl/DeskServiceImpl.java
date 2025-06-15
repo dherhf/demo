@@ -9,7 +9,9 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class DeskServiceImpl implements DeskService {
@@ -19,6 +21,36 @@ public class DeskServiceImpl implements DeskService {
 
     @Autowired
     private DeskMapper deskMapper;
+
+    public List<DeskDTO> getOpenDesks() {
+        List<Desk> desks = deskRepository.findByOpen(true);
+        return desks.stream().map(deskMapper::toDTO).collect(Collectors.toList());
+    }
+
+    public List<DeskDTO> getAllDesks() {
+        List<Desk> desks = deskRepository.findAll();
+        return desks.stream().map(deskMapper::toDTO).collect(Collectors.toList());
+    }
+
+    public DeskDTO createDesk(DeskDTO deskDTO) {
+        deskDTO.setId(null);
+        Desk save = deskRepository.save(deskMapper.toEntity(deskDTO));
+        return deskMapper.toDTO(save);
+    }
+
+    public DeskDTO updateDesk(Long id ,DeskDTO deskDTO) {
+        // 1. 校验URL ID与DTO ID是否一致
+        if (!id.equals(deskDTO.getId())) {
+            throw new IllegalArgumentException("bad request");
+        }
+
+        // 2. 检查ID是否存在
+        if (!deskRepository.existsById(id)) {
+            throw new EntityNotFoundException("not found");
+        }
+        Desk save = deskRepository.save(deskMapper.toEntity(deskDTO));
+        return deskMapper.toDTO(save);
+    }
 
     public DeskDTO getDeskById(Long id) {
         Optional<Desk> desk = deskRepository.findById(id);
