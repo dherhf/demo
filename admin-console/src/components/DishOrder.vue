@@ -18,7 +18,7 @@
 
     <!-- 菜品 + 点单区域 -->
     <div class="flex-1 flex flex-col p-6 space-y-6 overflow-auto">
-      <Order/>
+      <Order ref="orderComponent"/>
       <!-- 菜品展示 -->
       <div>
         <h2 class="text-2xl font-semibold mb-4">菜品列表</h2>
@@ -99,7 +99,9 @@
 import {computed, onMounted, ref} from 'vue'
 import axios from "axios";
 import Order from "@/components/Order.vue";
-//import { getSelectedData } from "@/components/Order.vue";
+
+// 创建组件引用
+const orderComponent = ref(null);
 
 const loadingDishCategory = ref(false)
 const loadingDish = ref(false)
@@ -172,7 +174,8 @@ const totalAmount = computed(() =>
 const submitOrder = async () => {
   try {
     // 获取当前选中的桌台、客户和员工信息
-    const { desk, customer, employee } = getSelectedData();
+    // 通过组件引用获取数据
+    const { desk, customer, employee } = orderComponent.value?.getSelectedData() || {};
 
     // 验证必要信息
     if (!desk || !customer || !employee) {

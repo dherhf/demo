@@ -107,8 +107,7 @@ const handleSubmit = async () => {
     isLoading.value = true;
     errorMessage.value = "";
     successMessage.value = "";
-
-    const response = await axios.post(
+    await axios.post(
         "http://localhost:8080/api/auth/login",
         {
           username: username.value,
@@ -120,10 +119,9 @@ const handleSubmit = async () => {
           },
         }
     );
-
-    // 处理成功响应
+// 处理成功响应
     successMessage.value = "登录成功";
-    router.push('/dashboard')
+    await router.push('/dashboard')
   } catch (error) {
     // 处理错误
     if (error.response) {
