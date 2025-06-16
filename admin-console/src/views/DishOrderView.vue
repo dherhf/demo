@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col h-screen">
     <Navbar />
-    <div class="flex-1 pt-16 overflow-hidden">
+    <div class="flex-1 pt-16 overflow-y-auto">
       <DishOrder />
     </div>
   </div>

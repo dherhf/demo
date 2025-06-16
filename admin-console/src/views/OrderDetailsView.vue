@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col h-screen">
     <Navbar />
-    <main class="flex-1 pt-16 overflow-hidden">
+    <main class="flex-1 pt-16 overflow-y-auto">
       <OrderDetails order-id="$route.params.orderId" />
     </main>
   </div>

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-screen bg-gray-50 relative z-0">
+  <div class="flex bg-gray-50 relative z-0" style="height: calc(100vh - 4rem);">
     <!-- 左侧：菜品分类列表 -->
     <div class="w-64 bg-white shadow-lg p-4 flex flex-col">
       <h3 class="text-xl font-semibold text-gray-800 mb-4">菜品分类</h3>

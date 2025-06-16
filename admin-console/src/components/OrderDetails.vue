@@ -1,6 +1,5 @@
 <template>
 
-
     <!-- 订单详情卡片 -->
     <div class="bg-white rounded-xl shadow-md overflow-hidden mb-6">
       <div class="p-6 border-b border-gray-200">
@@ -68,7 +67,7 @@
     </div>
 
     <!-- 订单操作按钮 -->
-    <div class="flex justify-end space-x-4 mb-6">
+    <div class="flex  justify-end space-x-4 mb-6">
       <button
           v-if="order.status === '已下单'"
           @click="updateOrderStatus('制作中')"
@@ -90,13 +89,14 @@
         <i class="fa fa-times mr-1"></i>取消订单
       </button>
       <!-- 返回按钮 -->
-        <button
-            @click="goBack"
-            class="px-4 py-2 border rounded-md shadow-sm text-sm font-medium bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 "
-        >
-          <i class="fa fa-arrow-left mr-2"></i>返回订单列表
-        </button>
+      <button
+          @click="goBack"
+          class="px-4 py-2 border rounded-md shadow-sm text-sm font-medium bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 "
+      >
+        <i class="fa fa-arrow-left mr-2"></i>返回订单列表
+      </button>
     </div>
+
 
 </template>
 
