@@ -1,6 +1,11 @@
 <template>
-  <Navbar/>
-  <Dashboard/>
+    <div class="flex flex-col h-screen">
+      <Navbar />
+      <main class="flex-1 pt-16 overflow-hidden">
+        <Dashboard/>
+      </main>
+    </div>
+
 </template>
 
 <script setup>

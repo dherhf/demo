@@ -1,6 +1,10 @@
 <template>
-  <Navbar/>
-  <DishOrder />
+  <div class="flex flex-col h-screen">
+    <Navbar />
+    <div class="flex-1 pt-16 overflow-hidden">
+      <DishOrder />
+    </div>
+  </div>
 </template>
 
 <script setup>

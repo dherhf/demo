@@ -1,8 +1,7 @@
 <template>
-  <div class="min-h-screen bg-gray-100 p-6 space-y-6">
 
     <!-- 跳转按钮区域 -->
-    <div class="flex gap-4">
+    <div class="flex gap-4 mt-6">
       <button
           @click="goToOrder"
           class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
@@ -40,7 +39,6 @@
         历史订单
       </button>
     </div>
-  </div>
 </template>
 
 <script setup>

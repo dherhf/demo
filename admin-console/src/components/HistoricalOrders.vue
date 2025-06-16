@@ -1,55 +1,62 @@
 <template>
 
     <!-- 搜索和筛选区域 -->
-    <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">订单号</label>
+
+    <div class="grid mt-6 mb-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+      <!-- 订单号 -->
+      <div>
+        <input
+            type="text"
+            v-model="searchOrderId"
+            placeholder="输入订单号"
+            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+      </div>
+
+      <!-- 日期范围 -->
+      <div>
+        <div class="flex items-center gap-2">
           <input
-              type="text"
-              v-model="searchOrderId"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="输入订单号"
+              type="date"
+              v-model="startDate"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">日期范围</label>
-          <div class="flex items-center space-x-2">
-            <input
-                type="date"
-                v-model="startDate"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-            <span class="text-gray-500">至</span>
-            <input
-                type="date"
-                v-model="endDate"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-          </div>
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">状态</label>
-          <select
-              v-model="statusFilter"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          <span class="text-gray-500">至</span>
+          <input
+              type="date"
+              v-model="endDate"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="">全部状态</option>
-            <option value="已下单">已下单</option>
-            <option value="制作中">制作中</option>
-            <option value="已完成">已完成</option>
-            <option value="已取消">已取消</option>
-          </select>
-        </div>
-        <div class="flex items-end">
-          <button
-              @click="fetchOrders"
-              class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md shadow-sm text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
-          >
-            <i class="fa fa-search mr-1"></i>搜索
-          </button>
         </div>
       </div>
+
+      <!-- 状态选择 -->
+      <div>
+        <select
+            v-model="statusFilter"
+            class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">全部状态</option>
+          <option value="已下单">已下单</option>
+          <option value="制作中">制作中</option>
+          <option value="已完成">已完成</option>
+          <option value="已取消">已取消</option>
+        </select>
+      </div>
+
+      <!-- 搜索按钮 -->
+      <div class="flex items-end justify-end">
+        <button
+            @click="fetchOrders"
+            class="bg-blue-600 text-white text-sm font-medium py-2 px-4 rounded-md hover:bg-blue-700 transition"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+            </svg>
+        </button>
+      </div>
+
     </div>
 
     <!-- 订单列表 -->

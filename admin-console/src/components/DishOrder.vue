@@ -1,7 +1,7 @@
 <template>
-  <div class="flex h-screen bg-gray-50">
+  <div class="flex h-full bg-gray-50 overflow-hidden">
     <!-- 分类栏 -->
-    <div class="w-64 bg-white shadow-lg p-4">
+    <div class="w-64 bg-white shadow-lg p-4 overflow-y-auto">
       <h2 class="text-xl font-bold mb-4">菜品分类</h2>
       <ul class="space-y-2">
         <li
@@ -17,7 +17,7 @@
     </div>
 
     <!-- 菜品 + 点单区域 -->
-    <div class="flex-1 flex flex-col p-6 space-y-6 overflow-auto">
+    <div class="flex-1 flex flex-col p-6 space-y-6 overflow-y-auto">
       <Order ref="orderComponent"/>
       <!-- 菜品展示 -->
       <div>

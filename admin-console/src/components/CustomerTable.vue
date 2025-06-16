@@ -1,9 +1,4 @@
 <template>
-  <!-- 页面标题 -->
-  <h1 class="text-3xl font-bold mb-6 text-center text-blue-700">
-    顾客信息总览
-  </h1>
-
   <!-- 加载状态 -->
   <div v-if="loading" class="py-20 flex flex-col items-center">
     <div
