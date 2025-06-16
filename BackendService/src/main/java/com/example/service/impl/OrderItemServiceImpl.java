@@ -37,6 +37,11 @@ public class OrderItemServiceImpl implements OrderItemService {
         return orderItemList.stream().map(orderItemMapper::toDTO).collect(Collectors.toList());
     }
 
+    public List<OrderItemDTO> getOrderItemsByOrderId(Long orderId) {
+        List<OrderItem> orderItemList = orderItemRepository.findByOrderId(Math.toIntExact(orderId));
+        return orderItemList.stream().map(orderItemMapper::toDTO).collect(Collectors.toList());
+    }
+
     public OrderItemDTO getOrderItemById(Long id) {
         Optional<OrderItem> orderItem = orderItemRepository.findById(id);
         if (orderItem.isEmpty()) {

@@ -29,6 +29,16 @@ public class OrderItemController {
         }
     }
 
+    @GetMapping("/order/{orderId}")
+    public ResponseEntity<List<OrderItemDTO>> getOrderItemByOrder(@PathVariable("orderId") long orderId) {
+        try {
+            List<OrderItemDTO> responseDTO = orderItemService.getOrderItemsByOrderId(orderId);
+            return ResponseEntity.ok(responseDTO);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
     @PostMapping
     public ResponseEntity<OrderItemDTO> createOrderItem(@Valid @RequestBody OrderItemDTO requestDTO) {
         try {
