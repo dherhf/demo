@@ -6,7 +6,8 @@ import DishTableView from '@/views/DishTableView.vue';
 import DishOrderView from '@/views/DishOrderView.vue';
 import EmployeeTableView from "@/views/EmployeeTableView.vue";
 import DeskTableView from "@/views/DeskTableView.vue";
-
+import HistoricalOrdersView from "@/views/HistoricalOrdersView.vue";
+import OrderDetailsView from "@/views/OrderDetailsView.vue";
 const routes = [
     {
         path: '/login',
@@ -42,6 +43,16 @@ const routes = [
         path: '/desk',
         name: 'deskTable',
         component: DeskTableView
+    },
+    {
+        path: '/historical-orders',
+        name: 'HistoricalOrders',
+        component: HistoricalOrdersView
+    },
+    {
+        path: '/order-details/:orderId',
+        name: 'OrderDetails',
+        component: OrderDetailsView
     },
     {
         path: '/',

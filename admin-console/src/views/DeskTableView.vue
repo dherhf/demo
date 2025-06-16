@@ -1,6 +1,8 @@
 <template>
-  <Navbar/>
-  <DeskTable/>
+  <div class="mx-auto">
+    <Navbar/>
+    <DeskTable/>
+  </div>
 </template>
 <script setup>
 import DeskTable from "@/components/DeskTable.vue";

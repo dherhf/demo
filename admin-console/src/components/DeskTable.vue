@@ -1,5 +1,4 @@
 <template>
-  <div class="container mx-auto p-4">
     <!-- 搜索和添加区域 -->
     <div class="flex flex-col md:flex-row gap-4 mb-6">
       <div class="relative flex-grow">
@@ -191,7 +190,7 @@
         </div>
       </div>
     </div>
-  </div>
+
 </template>
 
 <script setup>
