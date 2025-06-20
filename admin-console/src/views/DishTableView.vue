@@ -2,7 +2,7 @@
   <div class="flex flex-col h-screen">
     <Navbar />
     <main class="flex-1 pt-16 overflow-y-auto">
-      <DishTable/>
+      <DishTable />
     </main>
   </div>
 </template>

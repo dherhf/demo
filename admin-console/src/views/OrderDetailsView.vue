@@ -11,4 +11,3 @@
 import OrderDetails from "@/components/OrderDetails.vue";
 import Navbar from "@/components/Navbar.vue";
 </script>
-
