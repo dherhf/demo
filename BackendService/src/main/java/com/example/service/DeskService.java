@@ -9,6 +9,7 @@ public interface DeskService {
     List<DeskDTO> getAllDesks();
     DeskDTO createDesk(DeskDTO deskDTO);
     DeskDTO updateDesk(Long id, DeskDTO deskDTO);
+    boolean deleteDeskById(Long id);
     DeskDTO getDeskById(Long id);
     DeskDTO openDesk(Long id);
     DeskDTO closeDesk(Long id);

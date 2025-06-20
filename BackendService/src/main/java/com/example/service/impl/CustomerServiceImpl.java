@@ -94,9 +94,9 @@ public class CustomerServiceImpl implements CustomerService {
      * @param id 要删除的客户的 ID，使用 int 类型
      * @return 如果成功删除客户信息返回 true，若客户 ID 不存在则返回 false
      */
-    public boolean deleteCustomerById(int id) {
-        if (customerRepository.existsById((long) id)) {
-            customerRepository.deleteById((long) id);
+    public boolean deleteCustomerById(Long id) {
+        if (customerRepository.existsById(id)) {
+            customerRepository.deleteById(id);
             return true;
         }
         return false;

@@ -70,7 +70,7 @@ public class DishController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteDish(@PathVariable Long id) {
         boolean deleted = dishService.deleteDishById(id);
         return deleted ?
                 ResponseEntity.noContent().build() :

@@ -25,7 +25,6 @@ public class DishCategoryServiceImpl implements DishCategoryService {
 
     /**
      * 获取所有菜品分类信息。
-     *
      * 该方法会调用 DishCategoryRepository 的 findAll 方法从数据库中获取所有的菜品分类实体，
      * 然后使用 Java Stream API 将每个实体通过 DishCategoryMapper 转换为对应的 DTO 对象，
      * 最后将这些 DTO 对象收集到一个列表中并返回。
@@ -109,7 +108,6 @@ public class DishCategoryServiceImpl implements DishCategoryService {
 
     /**
      * 根据菜品分类 ID 获取该分类下的所有菜品。
-     *
      * 此方法会先尝试通过传入的菜品分类 ID 从数据库中查询对应的菜品分类实体。
      * 如果未找到对应的菜品分类，将抛出 EntityNotFoundException 异常。
      * 若找到对应的菜品分类，则返回该分类下的所有菜品列表。

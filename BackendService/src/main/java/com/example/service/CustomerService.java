@@ -8,6 +8,6 @@ public interface CustomerService {
     CustomerDTO getCustomerById(Long id);
     List<CustomerDTO> getAllCustomers();
     CustomerDTO createCustomer(CustomerDTO customer);
-    boolean deleteCustomerById(int id);
+    boolean deleteCustomerById(Long id);
     CustomerDTO updateCustomer(Long id, CustomerDTO customer);
 }

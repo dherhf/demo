@@ -66,42 +66,12 @@ public class DeskController {
         }
     }
 
-    // 获取餐台状态
-    @GetMapping("/{id}/status")
-    public ResponseEntity<DeskDTO> getDeskStatus(@PathVariable Long id) {
-        try {
-            DeskDTO responseDTO = deskService.getDeskById(id);
-            return ResponseEntity.ok(responseDTO);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
-    }
-
-    // 打开餐台
-    @PostMapping("/{id}/open")
-    public ResponseEntity<DeskDTO> openDesk(@PathVariable Long id) {
-        try {
-            DeskDTO responseDTO = deskService.openDesk(id);
-            return ResponseEntity.ok(responseDTO);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
-    }
-
-    @PostMapping("/{id}/close")
-    public ResponseEntity<DeskDTO> closeDesk(@PathVariable Long id) {
-        try {
-            DeskDTO responseDTO = deskService.closeDesk(id);
-            return ResponseEntity.ok(responseDTO);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
+    @DeleteMapping("{id}")
+    public ResponseEntity<DeskDTO> deleteDeskById(@PathVariable Long id) {
+        boolean deleted = deskService.deleteDeskById(id);
+        return deleted ?
+                ResponseEntity.noContent().build() :
+                ResponseEntity.notFound().build();
     }
 
 }

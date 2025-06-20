@@ -78,6 +78,16 @@ public class DeskServiceImpl implements DeskService {
         return deskMapper.toDTO(save);
     }
 
+
+    public boolean deleteDeskById(Long id) {
+        if (deskRepository.existsById(id)) {
+            deskRepository.deleteById(id);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     /**
      * 根据ID获取桌子信息。
      *

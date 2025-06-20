@@ -32,7 +32,7 @@ public class DishCategoryController {
 
     // 添加菜品分类
     @PostMapping
-    public ResponseEntity<DishCategoryDTO> addDishCategory(@Valid @RequestBody DishCategoryDTO requestDTO) {
+    public ResponseEntity<DishCategoryDTO> createDishCategory(@Valid @RequestBody DishCategoryDTO requestDTO) {
         try {
             DishCategoryDTO responseDTO = dishCategoryService.createDishCategory(requestDTO);
             return ResponseEntity.ok().body(responseDTO);

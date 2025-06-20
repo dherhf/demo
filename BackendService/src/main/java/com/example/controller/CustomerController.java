@@ -75,7 +75,7 @@ public class CustomerController {
 
     // 删除顾客
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCustomer(@PathVariable int id) {
+    public ResponseEntity<Void> deleteCustomer(@PathVariable Long id) {
         boolean deleted = customerService.deleteCustomerById(id);
         return deleted ?
                 ResponseEntity.noContent().build() :
